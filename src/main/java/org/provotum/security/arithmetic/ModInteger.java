@@ -34,6 +34,11 @@ public class ModInteger implements Comparable<ModInteger> {
         this.modulus = BigInteger.ZERO;
     }
 
+    public ModInteger(int value, ModInteger modulus) {
+        this.value = new BigInteger(Integer.toString(value, 10)).mod(modulus.value);
+        this.modulus = modulus.value;
+    }
+
     public ModInteger(BigInteger value) {
         this.value = value;
         this.modulus = BigInteger.ZERO;
@@ -128,6 +133,14 @@ public class ModInteger implements Comparable<ModInteger> {
                 this.value.mod(modulo.value),
                 this.modulus
         );
+    }
+
+    public BigInteger getValue() {
+        return value;
+    }
+
+    public BigInteger getModulus() {
+        return modulus;
     }
 
     public int compareTo(ModInteger b) {

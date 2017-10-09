@@ -3,15 +3,25 @@ package org.provotum.security.elgamal;
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.provotum.security.arithmetic.ModInteger;
 
-public class ExtendedElGamalPrivateKey {
+import java.math.BigInteger;
+
+public class PrivateKey {
 
     private ElGamalPrivateKey privateKey;
+    private ModInteger q;
 
     /**
      * @param privateKey The ElGamal private key to use.
      */
-    public ExtendedElGamalPrivateKey(ElGamalPrivateKey privateKey) {
+    public PrivateKey(ElGamalPrivateKey privateKey) {
         this.privateKey = privateKey;
+
+        // q = (p - 1) / 2
+        this.q = new ModInteger(this.privateKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2)));
+    }
+
+    public ModInteger partialDecrypt(CipherText cipherText) {
+        return cipherText.getG().pow(new ModInteger(this.privateKey.getX(), this.q.getValue()));
     }
 
     /**

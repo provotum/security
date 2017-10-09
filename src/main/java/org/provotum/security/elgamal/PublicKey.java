@@ -5,7 +5,7 @@ import org.provotum.security.arithmetic.ModInteger;
 
 import java.math.BigInteger;
 
-public class ExtendedElGamalPublicKey {
+public class PublicKey {
 
     /**
      * The message base. Used to represent messages wrt. a certain base.
@@ -16,11 +16,12 @@ public class ExtendedElGamalPublicKey {
     /**
      * @param publicKey The ElGamal public key to use.
      */
-    public ExtendedElGamalPublicKey(ElGamalPublicKey publicKey) {
+    public PublicKey(ElGamalPublicKey publicKey) {
         this.publicKey = publicKey;
 
         // q = (p - 1) / 2
-        this.q = new ModInteger(this.publicKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2)));
+        BigInteger q = this.publicKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
+        this.q = new ModInteger(q);
     }
 
     /**
@@ -29,7 +30,7 @@ public class ExtendedElGamalPublicKey {
      * @return The public key value <b>y</b> aka <b>h</b>.
      */
     public ModInteger getY() {
-        return new ModInteger(this.publicKey.getY());
+        return new ModInteger(this.publicKey.getY(), this.publicKey.getParameters().getP());
     }
 
     /**
@@ -38,7 +39,7 @@ public class ExtendedElGamalPublicKey {
      * @return The base generator <b>g</b>.
      */
     public ModInteger getG() {
-        return new ModInteger(this.publicKey.getParameters().getG());
+        return new ModInteger(this.publicKey.getParameters().getG(), this.publicKey.getParameters().getP());
     }
 
     /**

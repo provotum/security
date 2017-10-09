@@ -14,9 +14,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 
-public class ElGamalEncryption {
+public class Encryption {
 
-    public ElGamalEncryption() {
+    public Encryption() {
         if (null == Security.getProvider(BouncyCastleProvider.PROVIDER_NAME)) {
             Security.addProvider(new BouncyCastleProvider());
         }

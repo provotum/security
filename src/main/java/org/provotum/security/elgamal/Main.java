@@ -2,18 +2,22 @@ package org.provotum.security.elgamal;
 
 import org.bouncycastle.crypto.generators.ElGamalParametersGenerator;
 import org.bouncycastle.crypto.params.ElGamalParameters;
-import org.bouncycastle.jcajce.provider.asymmetric.elgamal.*;
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
+import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.arithmetic.Polynomial;
+import org.provotum.security.election.Election;
+import org.provotum.security.vote.Vote;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.KeyPairGeneratorSpi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -23,7 +27,7 @@ public class Main {
         }
 
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
-        generator.init(1024, 20, new SecureRandom());
+        generator.init(160, 20, new SecureRandom());
         ElGamalParameters parameters = generator.generateParameters();
         parameters.getP(); // public prime
         parameters.getG(); // public generator
@@ -40,11 +44,32 @@ public class Main {
 
         String s = "Hello";
 
-        ElGamalEncryption enc = new ElGamalEncryption();
+        Encryption enc = new Encryption();
         byte[] encrypted = enc.encrypt(pubKey, s.getBytes(StandardCharsets.UTF_8));
 
         byte[] decrypted = enc.decrypt(privKey, encrypted);
 
         System.out.println(new String(decrypted, StandardCharsets.UTF_8));
+
+
+        System.out.println("-------------------------------");
+        PublicKey publicKey = new PublicKey(pubKey);
+        PrivateKey privateKey = new PrivateKey(privKey);
+
+        Vote vote = new Vote(CipherText.encrypt(publicKey, ModInteger.ONE));
+
+        Election election = new Election(publicKey);
+        election.castVote(vote);
+        Vote cipherSum = election.sumVotes();
+        ModInteger partial = privateKey.partialDecrypt(cipherSum.getCipherText());
+        List<ModInteger> sums = new ArrayList<>();
+        sums.add(partial);
+
+        ArrayList<ModInteger> coeffs = new ArrayList<>();
+        coeffs.add(ModInteger.ZERO); // must be the index of the authority if multiple
+
+        ModInteger result = election.getFinalSum(sums, coeffs, cipherSum, publicKey);
+
+        System.out.println(result);
     }
 }
