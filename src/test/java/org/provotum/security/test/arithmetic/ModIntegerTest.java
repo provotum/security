@@ -1,7 +1,6 @@
 package org.provotum.security.test.arithmetic;
 
 import junit.framework.TestCase;
-import org.provotum.security.AdderInteger;
 import org.provotum.security.arithmetic.ModInteger;
 
 import java.math.BigInteger;
@@ -39,6 +38,10 @@ public class ModIntegerTest extends TestCase {
     public void testNegate() {
         ModInteger negativeP = this.p.negate();
         assertEquals(new ModInteger(BigInteger.valueOf(10)), negativeP);
+
+        ModInteger two = new ModInteger(BigInteger.valueOf(2), BigInteger.valueOf(11));
+        ModInteger negativeTwo = two.negate();
+        assertEquals(new ModInteger(BigInteger.valueOf(9)), negativeTwo);
     }
 
     public void testCombined() {

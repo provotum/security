@@ -56,7 +56,7 @@ public class Main {
         PublicKey publicKey = new PublicKey(pubKey);
         PrivateKey privateKey = new PrivateKey(privKey);
 
-        Vote vote = new Vote(CipherText.encrypt(publicKey, ModInteger.ONE));
+        Vote vote = new Vote(CipherText.encrypt(publicKey, ModInteger.ZERO));
 
         Election election = new Election(publicKey);
         election.castVote(vote);
@@ -70,6 +70,6 @@ public class Main {
 
         ModInteger result = election.getFinalSum(sums, coeffs, cipherSum, publicKey);
 
-        System.out.println(result);
+        System.out.println(result.getValue() + " mod " + result.getModulus());
     }
 }

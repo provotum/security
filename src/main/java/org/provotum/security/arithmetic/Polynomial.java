@@ -25,6 +25,14 @@ public class Polynomial {
         }
     }
 
+    public Polynomial(ModInteger p, ModInteger q, ModInteger g, List<ModInteger> coefficients) {
+        this.p = p;
+        this.q = q;
+        this.g = g;
+        this.coefficients = coefficients;
+        this.degree = coefficients.size() - 1;
+    }
+
     public int getDegree() {
         return degree;
     }
@@ -44,7 +52,7 @@ public class Polynomial {
         return sum;
     }
 
-    public List<ModInteger> getLangrangeCoefficients() {
+    public List<ModInteger> getLagrangeCoefficients() {
         List<ModInteger> lagrangeCoefficients = new ArrayList<>(this.coefficients.size());
 
         for (ModInteger next : this.coefficients) {

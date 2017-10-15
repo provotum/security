@@ -12,7 +12,10 @@ public class CipherText {
     public static CipherText encrypt(PublicKey publicKey, ModInteger message) {
         ModInteger random = ModInteger.random(publicKey.getQ());
         ModInteger bigG = publicKey.getG().pow(random);
-        ModInteger bigH = publicKey.getY().pow(random);
+        ModInteger bigH = publicKey.getY().pow(random).multiply(message);
+
+        // G = g^r
+        // H = y^r
 
         return new CipherText(publicKey.getP(), bigG, bigH, random);
     }
