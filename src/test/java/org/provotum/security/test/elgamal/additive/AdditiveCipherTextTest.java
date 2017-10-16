@@ -19,6 +19,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
 
+/**
+ * Tests the correct working of additive ElGamal homomorphic encryption.
+ */
 public class AdditiveCipherTextTest extends TestCase {
 
     private PublicKey publicKey;

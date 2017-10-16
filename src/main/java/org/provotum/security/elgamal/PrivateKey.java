@@ -2,7 +2,6 @@ package org.provotum.security.elgamal;
 
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.provotum.security.arithmetic.ModInteger;
-import org.provotum.security.elgamal.threshold.CipherText;
 
 import java.math.BigInteger;
 
@@ -19,10 +18,6 @@ public class PrivateKey {
 
         // q = (p - 1) / 2
         this.q = new ModInteger(this.privateKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2)));
-    }
-
-    public ModInteger partialDecrypt(CipherText cipherText) {
-        return cipherText.getG().pow(new ModInteger(this.privateKey.getX(), this.q.getValue()));
     }
 
     /**
@@ -46,9 +41,20 @@ public class PrivateKey {
     }
 
     /**
-     * A value representing the message modulus.
+     * A value representing the component of p <b>q</b>.
+     * <p>
+     * <code>q = (p - 1) / 2</code>
      *
-     * @return The message modulus <b>f</b>.
+     * @return The component <b>q</b>.
+     */
+    public ModInteger getQ() {
+        return q;
+    }
+
+    /**
+     * A value representing the base generator g.
+     *
+     * @return The base generator <b>g</b>.
      */
     public ModInteger getG() {
         return new ModInteger(this.privateKey.getParameters().getG());
