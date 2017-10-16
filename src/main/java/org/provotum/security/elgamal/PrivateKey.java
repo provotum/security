@@ -2,6 +2,7 @@ package org.provotum.security.elgamal;
 
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.elgamal.threshold.CipherText;
 
 import java.math.BigInteger;
 

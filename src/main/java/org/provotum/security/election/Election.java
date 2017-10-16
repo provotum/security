@@ -3,7 +3,7 @@ package org.provotum.security.election;
 import org.provotum.security.SearchSpaceExhaustedException;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.arithmetic.Polynomial;
-import org.provotum.security.elgamal.CipherText;
+import org.provotum.security.elgamal.threshold.CipherText;
 import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.vote.Vote;
 

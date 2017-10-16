@@ -1,6 +1,6 @@
 package org.provotum.security.vote;
 
-import org.provotum.security.elgamal.CipherText;
+import org.provotum.security.elgamal.threshold.CipherText;
 
 public class Vote {
 

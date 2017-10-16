@@ -1,6 +1,7 @@
-package org.provotum.security.elgamal;
+package org.provotum.security.elgamal.threshold;
 
 import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.elgamal.PublicKey;
 
 public class CipherText {
 
@@ -18,15 +19,6 @@ public class CipherText {
         // H = y^r
 
         return new CipherText(publicKey.getP(), bigG, bigH, random);
-    }
-
-    public static CipherText encryptPolynomial(PublicKey publicKey, ModInteger message) {
-        ModInteger random = ModInteger.random(publicKey.getQ());
-        ModInteger bigG = publicKey.getG().pow(random);
-        ModInteger messagePlusOne = new ModInteger(message.add(ModInteger.ONE), publicKey.getP());
-        ModInteger bigH = publicKey.getY().pow(random).multiply(messagePlusOne.pow(ModInteger.TWO));
-
-        return new CipherText(publicKey.getP(), bigG, bigH);
     }
 
     /**

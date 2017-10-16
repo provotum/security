@@ -1,4 +1,4 @@
-package org.provotum.security.elgamal;
+package org.provotum.security;
 
 import org.bouncycastle.crypto.generators.ElGamalParametersGenerator;
 import org.bouncycastle.crypto.params.ElGamalParameters;
@@ -7,8 +7,10 @@ import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
 import org.provotum.security.arithmetic.ModInteger;
-import org.provotum.security.arithmetic.Polynomial;
 import org.provotum.security.election.Election;
+import org.provotum.security.elgamal.*;
+import org.provotum.security.elgamal.PrivateKey;
+import org.provotum.security.elgamal.threshold.CipherText;
 import org.provotum.security.vote.Vote;
 
 import javax.crypto.BadPaddingException;
@@ -53,8 +55,8 @@ public class Main {
 
 
         System.out.println("-------------------------------");
-        PublicKey publicKey = new PublicKey(pubKey);
-        PrivateKey privateKey = new PrivateKey(privKey);
+        org.provotum.security.elgamal.PublicKey publicKey = new org.provotum.security.elgamal.PublicKey(pubKey);
+        org.provotum.security.elgamal.PrivateKey privateKey = new PrivateKey(privKey);
 
         Vote vote = new Vote(CipherText.encrypt(publicKey, ModInteger.ZERO));
 
