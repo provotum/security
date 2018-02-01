@@ -49,7 +49,7 @@ public class Encryption implements IEncryption<CipherText> {
         ModInteger c21 = publicKey.getG().pow(message);
         ModInteger c22 = publicKey.getY().pow(random);
 
-        return new CipherText(c1, c21, c22);
+        return new CipherText(c1, c21, c22, random);
     }
 
     /**

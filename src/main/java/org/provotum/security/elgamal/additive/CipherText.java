@@ -9,10 +9,13 @@ public class CipherText implements ICipherText<CipherText> {
     private ModInteger c21;
     private ModInteger c22;
 
-    public CipherText(ModInteger c1, ModInteger c21, ModInteger c22) {
+    private ModInteger r;
+
+    public CipherText(ModInteger c1, ModInteger c21, ModInteger c22, ModInteger r) {
         this.c1 = c1;
         this.c21 = c21;
         this.c22 = c22;
+        this.r = r;
     }
 
     /**
@@ -47,6 +50,8 @@ public class CipherText implements ICipherText<CipherText> {
         // h^r1 * h^r2
         this.c22 = this.c22.multiply(cipherText.c22);
 
+        this.r = this.r.add(cipherText.getR());
+
         return this;
     }
 
@@ -56,5 +61,9 @@ public class CipherText implements ICipherText<CipherText> {
 
     public ModInteger getC2() {
         return this.c21.multiply(this.c22);
+    }
+
+    public ModInteger getR() {
+        return this.r;
     }
 }
