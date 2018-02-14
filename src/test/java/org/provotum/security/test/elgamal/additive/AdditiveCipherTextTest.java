@@ -33,8 +33,6 @@ public class AdditiveCipherTextTest extends TestCase {
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
         generator.init(160, 20, new SecureRandom());
         ElGamalParameters parameters = generator.generateParameters();
-        parameters.getP(); // public prime
-        parameters.getG(); // public generator
 
         ElGamalParameterSpec elGamalParameterSpec = new ElGamalParameterSpec(parameters.getP(), parameters.getG());
 
@@ -62,8 +60,8 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(new BigInteger("2"), result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(new BigInteger("2").equals(result.getValue().bigintValue()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
     }
 
     public void testAddition2() {
@@ -76,8 +74,8 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(BigInteger.ONE, result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(BigInteger.ONE.equals(result.getValue().bigintValue()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
     }
 
     public void testAddition3() {
@@ -90,7 +88,7 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(BigInteger.ZERO, result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(BigInteger.ZERO.equals(result.getValue().bigintValue()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
     }
 }

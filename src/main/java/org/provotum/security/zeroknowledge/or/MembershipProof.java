@@ -34,7 +34,6 @@ public class MembershipProof {
         /* Get g, h, and f */
         ModInteger g = new ModInteger(this.publicKey.getG(), p);
         ModInteger h = new ModInteger(this.publicKey.getH(), p);
-        ModInteger f = this.publicKey.getF();
 
         /* bigG (g^r), bigH (g^(rx) * f^m), and r */
 
@@ -100,7 +99,7 @@ public class MembershipProof {
                 ModInteger negC = c.negate();
 
                 /* This is essentially the message corresponding to domain member d mapped into G */
-                ModInteger fpow = f.pow(d);
+                ModInteger fpow = g.pow(d);
 
                 /* Compute a group member g^s * (g^r)^(-c_i) = g^(s - r*c_i) */
                 y = g.pow(s).multiply(this.cipherText.getG().pow(negC));
@@ -154,7 +153,6 @@ public class MembershipProof {
         ModInteger q = this.publicKey.getQ();
         ModInteger g = new ModInteger(this.publicKey.getG(), p);
         ModInteger h = new ModInteger(this.publicKey.getH(), p);
-        ModInteger f = this.publicKey.getF();
 
         /* Get the cipher's randomness and encrypted value*/
         /* bigG (g^r), bigH (g^(rx) * f^m) */
@@ -185,7 +183,7 @@ public class MembershipProof {
                 ModInteger d = domain.get(i);
 
                 /* Map the value into the group via f */
-                ModInteger fpow = f.pow(d);
+                ModInteger fpow = g.pow(d);
 
 
                 /* extract the commit value and cr + t (or the random values) */

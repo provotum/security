@@ -42,13 +42,13 @@ public class Encryption implements IEncryption<CipherText> {
         // We split the second part, i.e. c21 into two
         // for easier calculation of the multiplication.
         // So this becomes:
-        // E(m) = (c1, c211 * c212) = (g^r, g^m * h^r)
+        // E(m) = (c1, c211 * c212) = (g^r, h^r * g^m)
 
         // TODO: this might be the other way round...
         // transform message to g^m
         ModInteger c1 = publicKey.getG().pow(random);
         ModInteger c21 = publicKey.getH().pow(random);
-        ModInteger c22 = publicKey.getF().pow(message);
+        ModInteger c22 = publicKey.getG().pow(message);
 
         return new CipherText(c1, c21, c22, random);
     }

@@ -8,7 +8,6 @@ import java.math.BigInteger;
 public class PublicKey {
 
     private ModInteger q;
-    private ModInteger f;
     private ElGamalPublicKey publicKey;
 
     /**
@@ -20,14 +19,6 @@ public class PublicKey {
         // q = (p - 1) / 2
         BigInteger q = this.publicKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
         this.q = new ModInteger(q);
-
-        // a must be bigger than 1
-        ModInteger a;
-        do {
-            a = ModInteger.random(this.q);
-        } while (a.compareTo(ModInteger.ONE) <= 0);
-
-        this.f = new ModInteger(publicKey.getParameters().getG()).pow(a);
     }
 
     /**
@@ -68,16 +59,5 @@ public class PublicKey {
      */
     public ModInteger getQ() {
         return q;
-    }
-
-    /**
-     * The message base used in the ElGamal encryption:
-     * <p>
-     * <code>E = (G, H) = (g^r, h^r * f^m)</code>
-     *
-     * @return The message base.
-     */
-    public ModInteger getF() {
-        return f;
     }
 }
