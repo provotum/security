@@ -2,6 +2,7 @@ package org.provotum.security.elgamal.additive;
 
 import org.provotum.security.api.IHomomorphicCipherText;
 import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
 import java.util.List;
@@ -101,8 +102,8 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      * {@inheritDoc}
      */
     @Override
-    public boolean verify(List<ModInteger> domain) {
-        return this.membershipProof.verify(this, domain);
+    public boolean verify(PublicKey publicKey, List<ModInteger> domain) {
+        return this.membershipProof.verify(publicKey, this, domain);
     }
 
     /**

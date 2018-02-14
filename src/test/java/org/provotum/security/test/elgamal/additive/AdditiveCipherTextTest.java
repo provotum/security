@@ -62,8 +62,8 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertTrue(new BigInteger("2").equals(result.getValue().bigintValue()));
-        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
+        assertTrue(new BigInteger("2").equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
 
     public void testAddition2() {
@@ -76,8 +76,8 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertTrue(BigInteger.ONE.equals(result.getValue().bigintValue()));
-        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
+        assertTrue(BigInteger.ONE.equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
 
     public void testAddition3() {
@@ -90,8 +90,8 @@ public class AdditiveCipherTextTest extends TestCase {
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertTrue(BigInteger.ZERO.equals(result.getValue().bigintValue()));
-        assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
+        assertTrue(BigInteger.ZERO.equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
 
     public void testVerifyEncryption() {
@@ -100,7 +100,7 @@ public class AdditiveCipherTextTest extends TestCase {
         domain.add(ModInteger.ONE);
 
         CipherText cipherText1 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
-        boolean isVerified = cipherText1.verify(domain);
+        boolean isVerified = cipherText1.verify(this.publicKey, domain);
 
         assertTrue(isVerified);
     }
@@ -111,7 +111,7 @@ public class AdditiveCipherTextTest extends TestCase {
         domain.add(ModInteger.ONE);
 
         CipherText cipherText1 = this.encryption.encrypt(this.publicKey, new ModInteger(3));
-        boolean isVerified = cipherText1.verify(domain);
+        boolean isVerified = cipherText1.verify(this.publicKey, domain);
 
         assertFalse(isVerified);
     }

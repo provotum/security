@@ -1,6 +1,7 @@
 package org.provotum.security.api;
 
 import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.elgamal.PublicKey;
 
 import java.util.List;
 
@@ -20,8 +21,9 @@ public interface IHomomorphicCipherText<C> {
     /**
      * Verify that this cipher text is within a particular domain of values.
      *
-     * @param domain An enumeration of all values the plaintext of this ciphertext may have.
+     * @param publicKey The public key used during encryption of this cihpertext.
+     * @param domain    An enumeration of all values the plaintext of this ciphertext may have.
      * @return True, if the encrypted plaintext is within the specified domain.
      */
-    boolean verify(List<ModInteger> domain);
+    boolean verify(PublicKey publicKey, List<ModInteger> domain);
 }

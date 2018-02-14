@@ -10,7 +10,7 @@ import java.math.BigInteger;
  * <p>
  * Some notes about modular arithmetic:
  * <ul>
- * <li><b>n mod 0</b> for any n is zero.</li>
+ * <li><b>n modulus 0</b> for any n is zero.</li>
  * </ul>
  */
 public class ModInteger implements Comparable<ModInteger> {
@@ -28,27 +28,17 @@ public class ModInteger implements Comparable<ModInteger> {
      */
     public static final ModInteger TWO = new ModInteger("2");
 
-    private BigInteger val;
-    private BigInteger mod;
     private static final Context CTX = new Context();
 
+    private BigInteger value;
+    private BigInteger modulus;
 
     /**
      * Creates an ModInteger with value and modulus of zero.
      */
     public ModInteger() {
-        this.val = BigInteger.ZERO;
-        this.mod = BigInteger.ZERO;
-    }
-
-    /**
-     * Copies the the given ModInteger into this ModInteger.
-     *
-     * @param b     ModInteger to be copied
-     */
-    public ModInteger(ModInteger b) {
-        this.val = b.val;
-        this.mod = b.mod;
+        this.value = BigInteger.ZERO;
+        this.modulus = BigInteger.ZERO;
     }
 
     /**
@@ -56,12 +46,12 @@ public class ModInteger implements Comparable<ModInteger> {
      * ModInteger. The integer is converted into a String and then
      * into a BigInteger.
      *
-     * @param val      int representation of ModInteger
-     * @see            BigInteger
+     * @param value int representation of ModInteger
+     * @see BigInteger
      */
-    public ModInteger(int val) {
-        this.val = new BigInteger(val + "");
-        this.mod = BigInteger.ZERO;
+    public ModInteger(int value) {
+        this.value = new BigInteger(value + "");
+        this.modulus = BigInteger.ZERO;
     }
 
     /**
@@ -69,13 +59,13 @@ public class ModInteger implements Comparable<ModInteger> {
      * base into an ModInteger. The String representation consists of the same
      * format as BigInteger.
      *
-     * @param val      String representation of ModInteger
-     * @param base     base to be used in interpreting <tt>val</tt>
-     * @see            BigInteger
+     * @param value String representation of ModInteger
+     * @param base  base to be used in interpreting <tt>value</tt>
+     * @see BigInteger
      */
-    public ModInteger(String val, int base) {
-        this.val = new BigInteger(val, base);
-        this.mod = BigInteger.ZERO;
+    public ModInteger(String value, int base) {
+        this.value = new BigInteger(value, base);
+        this.modulus = BigInteger.ZERO;
     }
 
     /**
@@ -83,14 +73,14 @@ public class ModInteger implements Comparable<ModInteger> {
      * the given modulus into an ModInteger. The String representation
      * consists of the same format as BigInteger.
      *
-     * @param val      String representation of ModInteger
-     * @param mod      the modulus
-     * @see            BigInteger
+     * @param value   String representation of ModInteger
+     * @param modulus the modulus
+     * @see BigInteger
      */
 
-    public ModInteger(BigInteger val, BigInteger mod) {
-        this.mod = mod;
-        this.val = val.mod(mod);
+    public ModInteger(BigInteger value, BigInteger modulus) {
+        this.modulus = modulus;
+        this.value = value.mod(modulus);
     }
 
     /**
@@ -98,14 +88,14 @@ public class ModInteger implements Comparable<ModInteger> {
      * base and the given modulus into an ModInteger. The String
      * representation consists of the same format as BigInteger.
      *
-     * @param val      String representation of ModInteger
-     * @param mod      the modulus
-     * @param base     base to be used in interpreting <tt>val</tt>
-     * @see            BigInteger
+     * @param value   String representation of ModInteger
+     * @param modulus the modulus
+     * @param base    base to be used in interpreting <tt>value</tt>
+     * @see BigInteger
      */
-    public ModInteger(String val, ModInteger mod, int base) {
-        this.val = new BigInteger(val, base).mod(mod.val);
-        this.mod = mod.val;
+    public ModInteger(String value, ModInteger modulus, int base) {
+        this.value = new BigInteger(value, base).mod(modulus.value);
+        this.modulus = modulus.value;
     }
 
     /**
@@ -113,18 +103,17 @@ public class ModInteger implements Comparable<ModInteger> {
      * modulus into an ModInteger. The integer is converted into a String
      * and then into a BigInteger.
      *
-     * @param val      int representation of ModInteger
-     * @param mod      the modulus
-     * @see            BigInteger
+     * @param value   int representation of ModInteger
+     * @param modulus the modulus
+     * @see BigInteger
      */
-    public ModInteger(int val, int mod) {
+    public ModInteger(int value, int modulus) {
+        // Integer converted into string first and then to BigInteger
+        BigInteger v = new BigInteger(value + "");
+        BigInteger mv = new BigInteger(modulus + "");
 
-        /* Integer converted into string first and then to BigInteger*/
-        BigInteger v = new BigInteger(val + "");
-        BigInteger mv = new BigInteger(mod + "");
-
-        this.mod = mv;
-        this.val = v.mod(mv);
+        this.modulus = mv;
+        this.value = v.mod(mv);
     }
 
 
@@ -133,12 +122,12 @@ public class ModInteger implements Comparable<ModInteger> {
      * an ModInteger. The String representation consists of the same format as
      * BigInteger.
      *
-     * @param val       String representation of ModInteger
-     * @see             BigInteger
+     * @param value String representation of ModInteger
+     * @see BigInteger
      */
-    public ModInteger(BigInteger val) {
-        this.val = val;
-        this.mod = BigInteger.ZERO;
+    public ModInteger(BigInteger value) {
+        this.value = value;
+        this.modulus = BigInteger.ZERO;
     }
 
     /**
@@ -146,11 +135,11 @@ public class ModInteger implements Comparable<ModInteger> {
      * ModInteger.  The String representation consists of consists of the
      * same format as BigInteger.
      *
-     * @param val       decimal String representation of ModInteger
-     * @see             BigInteger
+     * @param value decimal String representation of ModInteger
+     * @see BigInteger
      */
-    public ModInteger(String val) {
-        this(val, 10);
+    public ModInteger(String value) {
+        this(value, 10);
     }
 
     /**
@@ -158,12 +147,12 @@ public class ModInteger implements Comparable<ModInteger> {
      * ModInteger. The String representation consists of consists of the same
      * format as BigInteger.
      *
-     * @param val       decimal String representation of BigInteger.
-     * @param mod       the modulus
-     * @see             BigInteger
+     * @param value   decimal String representation of BigInteger.
+     * @param modulus the modulus
+     * @see BigInteger
      */
-    public ModInteger(int val, ModInteger mod) {
-        this(val + "", mod, 10);
+    public ModInteger(int value, ModInteger modulus) {
+        this(value + "", modulus, 10);
     }
 
     /**
@@ -171,35 +160,23 @@ public class ModInteger implements Comparable<ModInteger> {
      * specified modulus into an ModInteger. The String representation
      * consists of consists of the same format as BigInteger.
      *
-     * @param val       decimal String representation of BigInteger
-     * @param mod       the modulus
-     * @see             BigInteger
+     * @param value   decimal String representation of BigInteger
+     * @param modulus the modulus
+     * @see BigInteger
      */
-    public ModInteger(String val, ModInteger mod) {
-        this(val, mod, 10);
-    }
-
-    /**
-     * Translates the decimal String representation of an ModInteger with the
-     * specified modulus into an ModInteger. The String representation
-     * consists of consists of the same format as BigInteger.
-     *
-     * @param val       decimal String representation of BigInteger
-     * @param mod       the modulus
-     */
-    public ModInteger(String val, String mod) {
-        this(val, new ModInteger(mod));
+    public ModInteger(String value, ModInteger modulus) {
+        this(value, modulus, 10);
     }
 
     /**
      * Copies the the given ModInteger and modulus into this ModInteger.
      *
-     * @param b         ModInteger to be copied
-     * @param mod       the modulus
-     * @see             #toString()
+     * @param b       ModInteger to be copied
+     * @param modulus the modulus
+     * @see #toString()
      */
-    public ModInteger(ModInteger b, ModInteger mod) {
-        this(b.val.toString(), mod);
+    public ModInteger(ModInteger b, ModInteger modulus) {
+        this(b.value.toString(), modulus);
     }
 
 
@@ -207,30 +184,30 @@ public class ModInteger implements Comparable<ModInteger> {
      * Returns whether this ModInteger is value is divisible by the given
      * ModInteger.
      *
-     * @param  b        value by which divisibility is to be computed.
-     * @return          <tt>true</tt> if divisible by the given ModInteger
+     * @param b value by which divisibility is to be computed.
+     * @return <tt>true</tt> if divisible by the given ModInteger
      */
     public boolean isDivisible(ModInteger b) {
-        BigInteger mod = val.remainder(b.val);
+        BigInteger mod = value.remainder(b.value);
         return mod.equals(BigInteger.ZERO);
     }
 
     /**
      * Gets the value of this ModInteger.
      *
-     * @return          the value
+     * @return the value
      */
     public ModInteger getValue() {
-        return new ModInteger(val);
+        return new ModInteger(value);
     }
 
     /**
      * Gets the modulus of this ModInteger.
      *
-     * @return          the modulus
+     * @return the modulus
      */
     public ModInteger getModulus() {
-        return new ModInteger(mod);
+        return new ModInteger(modulus);
     }
 
     /**
@@ -240,21 +217,21 @@ public class ModInteger implements Comparable<ModInteger> {
      * of randomness is used. Note that this method always returns a
      * non-negative ModInteger.
      *
-     * @param  n        the bound for the new ModInteger
-     * @return          the new ModInteger
+     * @param n the bound for the new ModInteger
+     * @return the new ModInteger
      */
     public static ModInteger random(ModInteger n) {
+        BigInteger t = n.value;
 
-        BigInteger t = n.val;
-
-        while (t.compareTo(n.val) >= 0)
-            t = new BigInteger (n.val.bitLength(), CTX.getRandom());
+        while (t.compareTo(n.value) >= 0) {
+            t = new BigInteger(n.value.bitLength(), CTX.getRandom());
+        }
 
 
         ModInteger c = new ModInteger();
 
-        c.mod = n.val;
-        c.val = t;
+        c.modulus = n.value;
+        c.value = t;
 
         return c;
     }
@@ -265,9 +242,9 @@ public class ModInteger implements Comparable<ModInteger> {
      * The uniformity of the distribution should be uniform, as a secure source
      * of randomness is used.
      *
-     * @param  a        the lower bound for the new int
-     * @param  b        the upper bound for the new int
-     * @return          the new int
+     * @param a the lower bound for the new int
+     * @param b the upper bound for the new int
+     * @return the new int
      */
     public static int random(int a, int b) {
         return CTX.getRandom().nextInt(b - a) + a;
@@ -280,8 +257,8 @@ public class ModInteger implements Comparable<ModInteger> {
      * of randomness is used. Note that this method always returns a
      * non-negative ModInteger.
      *
-     * @param  n        the bound for the new ModInteger
-     * @return          the new ModInteger
+     * @param n the bound for the new ModInteger
+     * @return the new ModInteger
      */
     public static ModInteger random(int n) {
         return random(new ModInteger(n));
@@ -294,8 +271,8 @@ public class ModInteger implements Comparable<ModInteger> {
      * of randomness is used. Note that this method always returns a
      * non-negative ModInteger.
      *
-     * @param  n        the bound for the new ModInteger
-     * @return          the new ModInteger
+     * @param n the bound for the new ModInteger
+     * @return the new ModInteger
      */
     public static ModInteger random(String n) {
         return random(new ModInteger(n));
@@ -308,142 +285,108 @@ public class ModInteger implements Comparable<ModInteger> {
      * of randomness is used. Note that this method always returns a
      * non-negative ModInteger.
      *
-     * @param  n        the bound for the new ModInteger
-     * @return          the new ModInteger
+     * @param n the bound for the new ModInteger
+     * @return the new ModInteger
      */
     public static ModInteger random(BigInteger n) {
         return random(new ModInteger(n));
     }
 
     /**
-     * Returns a positive ModInteger that is probably a safe prime, with
-     * the specified bitLength. The probability that an ModInteger returned
-     * by this method is composite does not exceed 2<sup>-100</sup>.
-     *
-     * @param  bitLength    bitLength of the returned BigInteger.
-     * @return              an ModInteger of <tt>bitLength</tt> bits that is probably a safe prime
-     * @see                 BigInteger#bitLength()
-     */
-    public static ModInteger safePrime(int bitLength) {
-
-        final BigInteger two = new BigInteger("2");
-        BigInteger p;
-        BigInteger q;
-
-        do {
-            p = BigInteger.probablePrime(bitLength, CTX.getRandom());
-            q = p.subtract(BigInteger.ONE).divide(two);
-        } while (!q.isProbablePrime(100));
-
-        return new ModInteger(p);
-    }
-
-    /**
-     * @return          <tt>The additive inverse of val</tt>
+     * @return <tt>The additive inverse of value</tt>
      */
     public ModInteger negate() {
 
         ModInteger c = new ModInteger();
 
-        if (! this.mod.equals(BigInteger.ZERO)) {
+        if (! this.modulus.equals(BigInteger.ZERO)) {
             // we ensure that the value is not bigger than the modulus here
-            this.val = this.val.mod(this.mod);
+            this.value = this.value.mod(this.modulus);
         }
 
-        c.val = !mod.equals(BigInteger.ZERO) ? mod.subtract(val) : val.negate();
+        c.value = ! modulus.equals(BigInteger.ZERO) ? modulus.subtract(value) : value.negate();
 
         return c;
     }
 
     /**
-     * @see BigInteger#add(BigInteger)
-     *
-     * @param  b        value to be added to this ModInteger
-     * @return          Returns an ModInteger whose value is <tt>this.val + b.val</tt>
+     * @param b value to be added to this ModInteger
+     * @return Returns an ModInteger whose value is <tt>this.value + b.value</tt>
      */
     public ModInteger add(ModInteger b) {
 
         ModInteger c = new ModInteger();
 
-        c.mod = mod;
-        c.val = val.add(b.val);
+        c.modulus = modulus;
+        c.value = value.add(b.value);
 
-        if (!mod.equals(BigInteger.ZERO))
-            c.val = c.val.mod(c.mod);
+        if (! modulus.equals(BigInteger.ZERO))
+            c.value = c.value.mod(c.modulus);
 
         return c;
     }
 
     /**
-     * @see BigInteger#subtract(BigInteger)
-     *
-     * @param  b        value to be subtracted from this ModInteger
-     * @return          Returns an ModInteger whose value is <tt>this.val - b.val</tt>
+     * @param b value to be subtracted from this ModInteger
+     * @return Returns an ModInteger whose value is <tt>this.value - b.value</tt>
      */
     public ModInteger subtract(ModInteger b) {
 
         ModInteger c = new ModInteger();
 
-        c.mod = mod;
-        c.val = !mod.equals(BigInteger.ZERO) ? val.add((b.negate()).val) : val.subtract(b.val);
+        c.modulus = modulus;
+        c.value = ! modulus.equals(BigInteger.ZERO) ? value.add((b.negate()).value) : value.subtract(b.value);
 
         return c;
     }
 
     /**
-     * @see BigInteger#multiply(BigInteger)
-     *
-     * @param  b        value to be multiplied with this ModInteger
-     * @return          Returns an ModInteger whose value is <tt>this.val * b.val</tt>
+     * @param b value to be multiplied with this ModInteger
+     * @return Returns an ModInteger whose value is <tt>this.value * b.value</tt>
      */
     public ModInteger multiply(ModInteger b) {
         ModInteger c = new ModInteger();
 
-        c.mod = mod;
-        c.val = val.multiply(b.val);
+        c.modulus = modulus;
+        c.value = value.multiply(b.value);
 
-        if (!mod.equals(BigInteger.ZERO))
-            c.val = c.val.mod(c.mod);
+        if (! modulus.equals(BigInteger.ZERO))
+            c.value = c.value.mod(c.modulus);
 
         return c;
     }
 
     /**
-     * @see BigInteger#divide(BigInteger)
-     *
-     * @param  b        value to be divided into this ModInteger
-     * @return          Returns an ModInteger whose value is <tt>this.val / b.val</tt>
+     * @param b value to be divided into this ModInteger
+     * @return Returns an ModInteger whose value is <tt>this.value / b.value</tt>
      */
 
     public ModInteger divide(ModInteger b) {
 
         ModInteger c = new ModInteger();
 
-        c.mod = mod;
+        c.modulus = modulus;
 
-        if (!mod.equals(BigInteger.ZERO)) {
+        if (! modulus.equals(BigInteger.ZERO)) {
 
-            BigInteger bInv = b.val.modInverse(mod);
+            BigInteger bInv = b.value.modInverse(modulus);
 
-            c.val = val.multiply(bInv);
-            c.val = c.val.mod(c.mod);
-        }
-        else  c.val = val.divide(b.val);
+            c.value = value.multiply(bInv);
+            c.value = c.value.mod(c.modulus);
+        } else c.value = value.divide(b.value);
 
         return c;
     }
 
     /**
-     * @see BigInteger#mod(BigInteger)
-     *
-     * @param  m        value to be modded into this ModInteger
-     * @return          Returns an ModInteger whose value is <tt>this.val % m.val</tt>
+     * @param m value to be modded into this ModInteger
+     * @return Returns an ModInteger whose value is <tt>this.value % m.value</tt>
      */
     public ModInteger mod(ModInteger m) {
         ModInteger c = new ModInteger();
 
-        c.mod = this.mod;
-        c.val = val.mod(m.val);
+        c.modulus = this.modulus;
+        c.value = value.mod(m.value);
 
         return c;
     }
@@ -452,16 +395,16 @@ public class ModInteger implements Comparable<ModInteger> {
      * Returns an ModInteger whose value is
      * <tt>(this<sup>exponent</sup>)</tt>.
      *
-     * @param  exponent     exponent to which this ModInteger is to be raised.
-     * @return              <tt>this<sup>exponent</sup></tt>
+     * @param exponent exponent to which this ModInteger is to be raised.
+     * @return <tt>this<sup>exponent</sup></tt>
      */
 
     public ModInteger pow(ModInteger exponent) {
         ModInteger c = new ModInteger();
 
-        c.mod = mod;
+        c.modulus = modulus;
 
-        c.val = !mod.equals(BigInteger.ZERO) ? val.modPow(exponent.val, c.mod) : val.pow(exponent.val.intValue());
+        c.value = ! modulus.equals(BigInteger.ZERO) ? value.modPow(exponent.value, c.modulus) : value.pow(exponent.value.intValue());
 
         return c;
     }
@@ -471,8 +414,8 @@ public class ModInteger implements Comparable<ModInteger> {
      * <tt>(this<sup>exponent</sup>)</tt>. Note that <tt>exponent</tt>
      * is an integer rather than an ModInteger.
      *
-     * @param  exponent     exponent to which this ModInteger is to be raised.
-     * @return              <tt>this<sup>exponent</sup></tt>
+     * @param exponent exponent to which this ModInteger is to be raised.
+     * @return <tt>this<sup>exponent</sup></tt>
      */
     public ModInteger pow(int exponent) {
         return pow(new ModInteger(exponent));
@@ -487,85 +430,86 @@ public class ModInteger implements Comparable<ModInteger> {
      * <tt>(x.compareTo(y)</tt> &lt;<i>op</i>&gt; <tt>0)</tt>,
      * where &lt;<i>op</i>&gt; is one of the six comparison operators.
      *
-     * @param  b        ModInteger to which this ModInteger is to be compared.
-     * @return          -1, 0 or 1 as this BigInteger is numerically less than, equal to, or greater than <tt>b</tt>
+     * @param b ModInteger to which this ModInteger is to be compared.
+     * @return -1, 0 or 1 as this BigInteger is numerically less than, equal to, or greater than <tt>b</tt>
      */
     public int compareTo(ModInteger b) {
-        return val.compareTo(((ModInteger) b).val);
+        return value.compareTo(((ModInteger) b).value);
     }
 
     /**
      * Returns the hash code for this ModInteger.
      *
-     * @return          hash code for this ModInteger
+     * @return hash code for this ModInteger
      */
     public int hashCode() {
-        return val.hashCode() | mod.hashCode();
+        return value.hashCode() | modulus.hashCode();
     }
 
     /**
      * Compares this ModInteger with the specified Object for equality.
      *
-     * @param  x        Object to which this ModInteger is to be compared
-     * @return          <tt>true</tt> if and only if the specified Object is a
-     *                  ModInteger whose value is numerically equal to this
-     *                  ModInteger's value.
+     * @param x Object to which this ModInteger is to be compared
+     * @return <tt>true</tt> if and only if the specified Object is a
+     * ModInteger whose value is numerically equal to this
+     * ModInteger's value.
      */
     public boolean equals(Object x) {
 
-        Boolean isThis = (x==this);
-        Boolean isModIntegerAndEqual = (x instanceof ModInteger) && val.equals(((ModInteger) x).val);
+        Boolean isThis = (x == this);
+        Boolean isModIntegerAndEqual = (x instanceof ModInteger) && value.equals(((ModInteger) x).value);
 
         return isThis || isModIntegerAndEqual;
     }
 
     /**
-     * Converts this ModInteger to an <tt>int</tt>. This
-     * conversion is equivalent to BigInteger.
+     * Converts this ModInteger to a BigInteger.
      *
-     * @return           this ModInteger converted to an <tt>int</tt>
-     * @see              BigInteger#intValue()
+     * @return this ModInteger converted to a BigInteger
      */
-    public int intValue() {
-        return val.intValue();
+    public BigInteger asBigInteger() {
+        return value;
     }
 
     /**
-     * Converts this ModInteger to a BigInteger.
+     * Calculates the value modulus the modulus.
      *
-     * @return           this ModInteger converted to a BigInteger
-     * @see              BigInteger
+     * @return The finalized value.
      */
-    public BigInteger bigintValue() {
-        return val;
+    public BigInteger finalized() {
+        if (0 < modulus.compareTo(BigInteger.ZERO)) {
+            return value.mod(modulus);
+        }
+
+        return value;
     }
 
     /**
      * Returns the String representation of this ModInteger in the default
      * base of ten. This follows the same rules as BigInteger.
      *
-     * @return          String representation of this BigInteger in the given radix.
-     * @see             Integer#toString()
-     * @see             BigInteger#toString()
+     * @return String representation of this BigInteger in the given radix.
+     * @see Integer#toString()
+     * @see BigInteger#toString()
      */
     public String toString() {
-        return val.toString();
+        return value.toString();
     }
 
     /**
      * Returns the String representation of this ModInteger in the given
      * base. This follows the same rules as BigInteger.
      *
-     * @param  base     base of the String representation
-     * @return          String representation of this BigInteger in the given radix.
-     * @see             Integer#toString()
-     * @see             BigInteger#toString(int)
+     * @param base base of the String representation
+     * @return String representation of this BigInteger in the given radix.
+     * @see Integer#toString()
+     * @see BigInteger#toString(int)
      */
-    public String toString(int base) {
-        return val.toString(base);
+    public String asString(int base) {
+        return value.toString(base);
     }
 
-    public String toStringWithModulus() {
-        return val.toString() + " mod " + mod.toString();
+    public String asStringWithModulus() {
+        return value.toString() + " modulus " + modulus.toString();
     }
 }
