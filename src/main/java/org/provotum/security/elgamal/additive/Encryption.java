@@ -1,11 +1,9 @@
 package org.provotum.security.elgamal.additive;
 
-import org.provotum.security.api.IEncryption;
+import org.provotum.security.api.IHomomorphicEncryption;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
-
-import java.math.BigInteger;
 
 /**
  * This implementation provides additive homomorphic encryption using ElGamal.
@@ -26,14 +24,10 @@ import java.math.BigInteger;
  *               = E(m1 + m2)
  * </pre>
  */
-public class Encryption implements IEncryption<CipherText> {
+public class Encryption implements IHomomorphicEncryption<CipherText> {
 
     /**
-     * Encrypts the given message additively.
-     *
-     * @param publicKey The public key to use for encryption.
-     * @param message   The message to encrypt.
-     * @return The cipher text which can be additively operated on.
+     * {@inheritDoc}
      */
     @Override
     public CipherText encrypt(PublicKey publicKey, ModInteger message) {
@@ -44,7 +38,6 @@ public class Encryption implements IEncryption<CipherText> {
         // So this becomes:
         // E(m) = (c1, c211 * c212) = (g^r, h^r * g^m)
 
-        // TODO: this might be the other way round...
         // transform message to g^m
         ModInteger c1 = publicKey.getG().pow(random);
         ModInteger c21 = publicKey.getH().pow(random);
@@ -54,11 +47,7 @@ public class Encryption implements IEncryption<CipherText> {
     }
 
     /**
-     * Decrypts the given cipher text using the specified private key.
-     *
-     * @param privateKey The private key used for decryption.
-     * @param cipherText The cipher text to decrypt.
-     * @return The cleartext value
+     * {@inheritDoc}
      */
     @Override
     public ModInteger decrypt(PrivateKey privateKey, CipherText cipherText) {

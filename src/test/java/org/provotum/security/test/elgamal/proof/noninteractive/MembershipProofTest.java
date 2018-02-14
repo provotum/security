@@ -1,21 +1,16 @@
-package org.provotum.security.test.zeroknowledge.or;
+package org.provotum.security.test.elgamal.proof.noninteractive;
 
 import junit.framework.TestCase;
 import org.bouncycastle.crypto.generators.ElGamalParametersGenerator;
 import org.bouncycastle.crypto.params.ElGamalParameters;
-import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.additive.CipherText;
 import org.provotum.security.elgamal.additive.Encryption;
-import org.provotum.security.zeroknowledge.or.MembershipProof;
-import org.provotum.security.zeroknowledge.or.OrProof;
-import org.provotum.security.zeroknowledge.or.Response;
+import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
-import javax.crypto.spec.DHParameterSpec;
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
@@ -52,7 +47,7 @@ public class MembershipProofTest extends TestCase {
         MembershipProof proof = new MembershipProof(cipherText, this.publicKey);
         proof.compute(ModInteger.ONE);
 
-         boolean isProven = proof.verify();
+        boolean isProven = proof.verify();
 
         assertTrue(isProven);
     }

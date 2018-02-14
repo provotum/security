@@ -5,6 +5,9 @@ import org.provotum.security.arithmetic.ModInteger;
 
 import java.math.BigInteger;
 
+/**
+ * An ElGamal private key.
+ */
 public class PrivateKey {
 
     private ElGamalPrivateKey privateKey;

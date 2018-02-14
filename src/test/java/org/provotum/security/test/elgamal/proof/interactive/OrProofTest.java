@@ -1,14 +1,15 @@
-package org.provotum.security.test.zeroknowledge.or;
+package org.provotum.security.test.elgamal.proof.interactive;
 
 import junit.framework.TestCase;
 import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
+import org.junit.Ignore;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.additive.CipherText;
 import org.provotum.security.elgamal.additive.Encryption;
-import org.provotum.security.zeroknowledge.or.OrProof;
-import org.provotum.security.zeroknowledge.or.Response;
+import org.provotum.security.elgamal.proof.interactive.OrProof;
+import org.provotum.security.elgamal.proof.interactive.Response;
 
 import javax.crypto.spec.DHParameterSpec;
 import java.math.BigInteger;
@@ -16,8 +17,6 @@ import java.math.BigInteger;
 public class OrProofTest extends TestCase {
 
     private PublicKey publicKey;
-    private ModInteger message;
-    private CipherText cipherText;
 
     public void setUp() {
         ElGamalPublicKey epk = new ElGamalPublicKey() {
@@ -57,16 +56,16 @@ public class OrProofTest extends TestCase {
 
 
         this.publicKey = new PublicKey(epk);
-
-        // message must be in the base of the prime number p
-        this.message = new ModInteger(1, this.publicKey.getP());
-
-        Encryption enc = new Encryption();
-        this.cipherText = enc.encrypt(publicKey, message);
     }
 
     public void testOrProof() {
-        OrProof proof = new OrProof(this.cipherText, this.publicKey);
+        // message must be in the base of the prime number p
+        ModInteger message = new ModInteger(1, this.publicKey.getP());
+
+        Encryption enc = new Encryption();
+        CipherText cipherText = enc.encrypt(publicKey, message);
+
+        OrProof proof = new OrProof(cipherText, this.publicKey);
         proof.commit();
 
         ModInteger challenge = new ModInteger(1, publicKey.getP());

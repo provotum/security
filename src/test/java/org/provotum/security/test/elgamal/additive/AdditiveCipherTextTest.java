@@ -6,7 +6,7 @@ import org.bouncycastle.crypto.params.ElGamalParameters;
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
-import org.provotum.security.api.IEncryption;
+import org.provotum.security.api.IHomomorphicEncryption;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
@@ -27,7 +27,7 @@ public class AdditiveCipherTextTest extends TestCase {
     private PublicKey publicKey;
     private PrivateKey privateKey;
 
-    private IEncryption<CipherText> encryption;
+    private IHomomorphicEncryption<CipherText> encryption;
 
     public void setUp() throws InvalidAlgorithmParameterException {
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
@@ -55,7 +55,7 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ONE);
 
         // should contain value for two
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
@@ -69,7 +69,7 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
 
         // should contain value for one
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
@@ -83,7 +83,7 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
 
         // should contain value for one
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 

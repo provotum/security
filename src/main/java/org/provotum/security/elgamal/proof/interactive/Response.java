@@ -1,4 +1,4 @@
-package org.provotum.security.zeroknowledge.or;
+package org.provotum.security.elgamal.proof.interactive;
 
 import org.provotum.security.arithmetic.ModInteger;
 

@@ -1,4 +1,4 @@
-package org.provotum.security.zeroknowledge.or;
+package org.provotum.security.elgamal.proof.noninteractive;
 
 import org.provotum.security.Util;
 import org.provotum.security.arithmetic.ModInteger;
@@ -83,8 +83,6 @@ public class MembershipProof {
                 /* compute a random cipher, as part of the commitment process */
                 z = h.pow(t);
 
-                System.out.println("Real Proof: y:" + y.toStringWithModulus() + ", z:" + z.toStringWithModulus());
-
                 /* Record the index of the valid value */
                 indexInDomain = i;
             } else {
@@ -106,7 +104,6 @@ public class MembershipProof {
 
                 /* Compute a cipher, of the form g^xs * [(g^rx * f^m)/f^d]^(-c_i) = g^[x(s - rc_i)] * f^[c_i*(d - m)] */
                 z = h.pow(s).multiply(this.cipherText.getH().divide(fpow).pow(negC));
-                System.out.println("Fake Proof: y:" + y.toStringWithModulus() + ", z:" + z.toStringWithModulus());
             }
 
             /* Add our random ciphers and members to their respective lists */
@@ -140,8 +137,6 @@ public class MembershipProof {
 
         /* Add our real commitment value into the commit list in the right place */
         cList.set(indexInDomain, realC);
-        System.out.println("Setting true s: " + realC.multiply(this.cipherText.getR()).add(t).toStringWithModulus());
-        System.out.println("Setting true c: " + realC.toStringWithModulus());
     }
 
     public boolean verify() {
@@ -207,18 +202,14 @@ public class MembershipProof {
 
                 /* Compute the z-values used in the commit string */
                 sb.append(h.pow(s).multiply(bigH.divide(fpow).pow(negC)));
-                System.out.println("Verify Proof: y:" + g.pow(s).multiply(bigG.pow(negC)).toStringWithModulus() + ", z:" + h.pow(s).multiply(bigH.divide(fpow).pow(negC)).toStringWithModulus());
             }
 
             /* Now take the hash of the commit string and convert it to a number */
             String cHash = Util.sha1(sb.toString());
             ModInteger newC = new ModInteger(cHash, q, 16).mod(q);
 
-            System.out.println("Reconstructed c: " + cChoices.toStringWithModulus() + ", c from commit hash: " + newC.toStringWithModulus());
             /* Ensure that cChoices (i.e. the real commit) matches the hashed value of the commit string */
-            boolean result = (cChoices.equals(newC));
-
-            return result;
+            return (cChoices.equals(newC));
 
         } catch (IndexOutOfBoundsException e) {
             /* This happens if the domain used in verification is smaller than the
