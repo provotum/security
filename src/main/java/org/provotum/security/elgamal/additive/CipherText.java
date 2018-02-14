@@ -2,6 +2,9 @@ package org.provotum.security.elgamal.additive;
 
 import org.provotum.security.api.IHomomorphicCipherText;
 import org.provotum.security.arithmetic.ModInteger;
+import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
+
+import java.util.List;
 
 /**
  * An additive homomorphic ElGamal ciphertext.
@@ -30,6 +33,7 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
     private ModInteger c21;
     private ModInteger c22;
     private ModInteger r;
+    private MembershipProof membershipProof;
 
     /**
      * Creates a new ciphertext of the form:
@@ -37,16 +41,18 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      *     E = (G,H) = (g^r, h^r * g^m) = (c1, c21 * c22)
      * </pre>
      *
-     * @param c1  g^r, with g being the generator of the cyclic group.
-     * @param c21 h^r, with h being the public value h = g^x of the private key x.
-     * @param c22 g^m, with g being the generator and m the message to encrypt.
-     * @param r   The random value r used in the components above, in the range [0, q - 1]
+     * @param c1              g^r, with g being the generator of the cyclic group.
+     * @param c21             h^r, with h being the public value h = g^x of the private key x.
+     * @param c22             g^m, with g being the generator and m the message to encrypt.
+     * @param r               The random value r used in the components above, in the range [0, q - 1]
+     * @param membershipProof A membership proof ensuring that the plaintext value of this cipher is within a certain range.
      */
-    public CipherText(ModInteger c1, ModInteger c21, ModInteger c22, ModInteger r) {
+    public CipherText(ModInteger c1, ModInteger c21, ModInteger c22, ModInteger r, MembershipProof membershipProof) {
         this.c1 = c1;
         this.c21 = c21;
         this.c22 = c22;
         this.r = r;
+        this.membershipProof = membershipProof;
     }
 
     /**
@@ -86,7 +92,17 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
 
         this.r = this.r.add(operand.getR());
 
+        // TODO: recompute the proof
+
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean verify(List<ModInteger> domain) {
+        return this.membershipProof.verify(this, domain);
     }
 
     /**

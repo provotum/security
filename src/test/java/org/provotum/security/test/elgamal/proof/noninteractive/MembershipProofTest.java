@@ -15,10 +15,13 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MembershipProofTest extends TestCase {
 
     private PublicKey publicKey;
+    private List<ModInteger> domain;
 
     public void setUp() throws InvalidAlgorithmParameterException {
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
@@ -35,6 +38,10 @@ public class MembershipProofTest extends TestCase {
         ElGamalPublicKey pubKey = (ElGamalPublicKey) keyPair.getPublic();
 
         this.publicKey = new PublicKey(pubKey);
+
+        this.domain = new ArrayList<>();
+        this.domain.add(ModInteger.ZERO);
+        this.domain.add(ModInteger.ONE);
     }
 
     public void testOneOrProof() {
@@ -44,10 +51,10 @@ public class MembershipProofTest extends TestCase {
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
 
-        MembershipProof proof = new MembershipProof(cipherText, this.publicKey);
-        proof.compute(ModInteger.ONE);
+        MembershipProof proof = new MembershipProof(this.publicKey);
+        proof.commit(message, cipherText.getG(), cipherText.getH(), cipherText.getR());
 
-        boolean isProven = proof.verify();
+        boolean isProven = proof.verify(cipherText, this.domain);
 
         assertTrue(isProven);
     }
@@ -59,10 +66,11 @@ public class MembershipProofTest extends TestCase {
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
 
-        MembershipProof proof = new MembershipProof(cipherText, this.publicKey);
-        proof.compute(ModInteger.ZERO);
+        MembershipProof proof = new MembershipProof(this.publicKey);
+        // commit the proof to the plaintext message 0 -> will fail
+        proof.commit(ModInteger.ZERO, cipherText.getG(), cipherText.getH(), cipherText.getR());
 
-        boolean isProven = proof.verify();
+        boolean isProven = proof.verify(cipherText, this.domain);
 
         assertFalse(isProven);
     }
@@ -74,10 +82,10 @@ public class MembershipProofTest extends TestCase {
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
 
-        MembershipProof proof = new MembershipProof(cipherText, this.publicKey);
-        proof.compute(ModInteger.ZERO);
+        MembershipProof proof = new MembershipProof(this.publicKey);
+        proof.commit(ModInteger.ZERO, cipherText.getG(), cipherText.getH(), cipherText.getR());
 
-        boolean isProven = proof.verify();
+        boolean isProven = proof.verify(cipherText, this.domain);
 
         assertTrue(isProven);
     }
@@ -89,10 +97,27 @@ public class MembershipProofTest extends TestCase {
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
 
-        MembershipProof proof = new MembershipProof(cipherText, this.publicKey);
-        proof.compute(ModInteger.ONE);
+        MembershipProof proof = new MembershipProof(this.publicKey);
+        // commit the proof to the plaintext message 1 -> will fail
+        proof.commit(ModInteger.ONE, cipherText.getG(), cipherText.getH(), cipherText.getR());
 
-        boolean isProven = proof.verify();
+        boolean isProven = proof.verify(cipherText, this.domain);
+
+        assertFalse(isProven);
+    }
+
+    public void testOutOfBoundOrProof() {
+        // message must be in the base of the prime number p
+        ModInteger message = new ModInteger(3, this.publicKey.getP());
+
+        Encryption enc = new Encryption();
+        CipherText cipherText = enc.encrypt(publicKey, message);
+
+        MembershipProof proof = new MembershipProof(this.publicKey);
+        proof.commit(message, cipherText.getG(), cipherText.getH(), cipherText.getR());
+
+        // this should be wrong, since the message is not within the given domain.
+        boolean isProven = proof.verify(cipherText, this.domain);
 
         assertFalse(isProven);
     }

@@ -18,6 +18,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests the correct working of additive ElGamal homomorphic encryption.
@@ -90,5 +92,27 @@ public class AdditiveCipherTextTest extends TestCase {
         // sum should be equals to the addition of both cipher texts
         assertTrue(BigInteger.ZERO.equals(result.getValue().bigintValue()));
         assertTrue(BigInteger.ZERO.equals(result.getModulus().bigintValue()));
+    }
+
+    public void testVerifyEncryption() {
+        List<ModInteger> domain = new ArrayList<>();
+        domain.add(ModInteger.ZERO);
+        domain.add(ModInteger.ONE);
+
+        CipherText cipherText1 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
+        boolean isVerified = cipherText1.verify(domain);
+
+        assertTrue(isVerified);
+    }
+
+    public void testVerifyInvalidEncryption() {
+        List<ModInteger> domain = new ArrayList<>();
+        domain.add(ModInteger.ZERO);
+        domain.add(ModInteger.ONE);
+
+        CipherText cipherText1 = this.encryption.encrypt(this.publicKey, new ModInteger(3));
+        boolean isVerified = cipherText1.verify(domain);
+
+        assertFalse(isVerified);
     }
 }

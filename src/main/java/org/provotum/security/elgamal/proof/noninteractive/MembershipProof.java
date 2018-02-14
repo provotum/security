@@ -10,7 +10,6 @@ import java.util.List;
 
 public class MembershipProof {
 
-    private CipherText cipherText;
     private PublicKey publicKey;
 
     private List<ModInteger> sList = new ArrayList<>();
@@ -21,17 +20,15 @@ public class MembershipProof {
     private String origCHash;
     private StringBuilder origSb;
 
-    public MembershipProof(CipherText cipherText, PublicKey publicKey) {
-        this.cipherText = cipherText;
+    public MembershipProof(PublicKey publicKey) {
         this.publicKey = publicKey;
     }
 
-    public void compute(ModInteger message) {
+    public void commit(ModInteger message, ModInteger bigG, ModInteger bigH, ModInteger random) {
         /* Get p and q from the key */
         ModInteger p = this.publicKey.getP();
         ModInteger q = this.publicKey.getQ();
 
-        /* Get g, h, and f */
         ModInteger g = new ModInteger(this.publicKey.getG(), p);
         ModInteger h = new ModInteger(this.publicKey.getH(), p);
 
@@ -51,8 +48,8 @@ public class MembershipProof {
         /* Append all the numbers to the string*/
         sb.append(g);
         sb.append(h);
-        sb.append(this.cipherText.getG());
-        sb.append(this.cipherText.getH());
+        sb.append(bigG);
+        sb.append(bigH);
 
         /* Initialize our domain counter */
         int indexInDomain = 0;
@@ -80,7 +77,7 @@ public class MembershipProof {
                 /* Compute random group member */
                 y = g.pow(t);
 
-                /* compute a random cipher, as part of the commitment process */
+                /* commit a random cipher, as part of the commitment process */
                 z = h.pow(t);
 
                 /* Record the index of the valid value */
@@ -100,10 +97,10 @@ public class MembershipProof {
                 ModInteger fpow = g.pow(d);
 
                 /* Compute a group member g^s * (g^r)^(-c_i) = g^(s - r*c_i) */
-                y = g.pow(s).multiply(this.cipherText.getG().pow(negC));
+                y = g.pow(s).multiply(bigG.pow(negC));
 
                 /* Compute a cipher, of the form g^xs * [(g^rx * f^m)/f^d]^(-c_i) = g^[x(s - rc_i)] * f^[c_i*(d - m)] */
-                z = h.pow(s).multiply(this.cipherText.getH().divide(fpow).pow(negC));
+                z = h.pow(s).multiply(bigH.divide(fpow).pow(negC));
             }
 
             /* Add our random ciphers and members to their respective lists */
@@ -133,15 +130,19 @@ public class MembershipProof {
         /* Note that realC (call it p) is now c1 - (sum(cList)) */
 
         /* Compute pr + t using our real commitment value and add it in the right place */
-        sList.set(indexInDomain, realC.multiply(this.cipherText.getR()).add(t));
+        sList.set(indexInDomain, realC.multiply(random).add(t));
 
         /* Add our real commitment value into the commit list in the right place */
         cList.set(indexInDomain, realC);
     }
 
-    public boolean verify() {
-        // TODO rme: the domain should be an argument of this method.
-        // TODO rme: the ciphertext and the public key should be an argument of this method.
+    public boolean verify(CipherText cipherText, List<ModInteger> domain) {
+        if (domain.size() < this.cList.size() ||
+            domain.size() < this.sList.size()) {
+            // The domain of the message is bigger than specified.
+            // Therefore, the proof that the message is within the given domain is invalid.
+            return false;
+        }
 
         /* Extract necessary key components for computation */
         ModInteger p = this.publicKey.getP();
@@ -151,8 +152,8 @@ public class MembershipProof {
 
         /* Get the cipher's randomness and encrypted value*/
         /* bigG (g^r), bigH (g^(rx) * f^m) */
-        ModInteger bigG = this.cipherText.getG();
-        ModInteger bigH = this.cipherText.getH();
+        ModInteger bigG = cipherText.getG();
+        ModInteger bigH = cipherText.getH();
 
         /* This will be our commit value that we reconstruct */
         ModInteger cChoices = new ModInteger(ModInteger.ZERO, q);
@@ -167,10 +168,6 @@ public class MembershipProof {
         sb.append(bigH);
 
         try {
-            List<ModInteger> domain = new ArrayList<>();
-            domain.add(ModInteger.ZERO);
-            domain.add(ModInteger.ONE);
-
             /* Iterate over all the commits, fake and otherwise */
             for (int i = 0; i < cList.size(); i++) {
 
@@ -190,7 +187,7 @@ public class MembershipProof {
 
                 /*
                  * add this commit value to reconstruct our hashed value
-                 * cChoices = sum(c_i), where one c_i is realC from compute, giving us
+                 * cChoices = sum(c_i), where one c_i is realC from commit, giving us
                  * cChoices = c_0 + ... + realC + ... c_n = c_0 + ... (c1 - (c_0 + ... + 0 + ... + c_n) + ... c_n
                  * cChoices = c_0 - c_0 + ... c - 0 + ... c_n - c_n
                  * cChoices = c1 eventually

@@ -4,6 +4,7 @@ import org.provotum.security.api.IHomomorphicEncryption;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
+import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
 /**
  * This implementation provides additive homomorphic encryption using ElGamal.
@@ -38,12 +39,14 @@ public class Encryption implements IHomomorphicEncryption<CipherText> {
         // So this becomes:
         // E(m) = (c1, c211 * c212) = (g^r, h^r * g^m)
 
-        // transform message to g^m
         ModInteger c1 = publicKey.getG().pow(random);
         ModInteger c21 = publicKey.getH().pow(random);
         ModInteger c22 = publicKey.getG().pow(message);
 
-        return new CipherText(c1, c21, c22, random);
+        MembershipProof proof = new MembershipProof(publicKey);
+        proof.commit(message, c1, c21.multiply(c22), random);
+
+        return new CipherText(c1, c21, c22, random, proof);
     }
 
     /**
