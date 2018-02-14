@@ -1,11 +1,12 @@
 package org.provotum.security.elgamal.additive;
 
-import org.provotum.security.api.IEncryption;
+import org.provotum.security.api.IHomomorphicEncryption;
+import org.provotum.security.api.IMembershipProofFactory;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
-
-import java.math.BigInteger;
+import org.provotum.security.elgamal.proof.AdditiveElGamalMembershipProofFactory;
+import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
 /**
  * This implementation provides additive homomorphic encryption using ElGamal.
@@ -26,14 +27,10 @@ import java.math.BigInteger;
  *               = E(m1 + m2)
  * </pre>
  */
-public class Encryption implements IEncryption<CipherText> {
+public class Encryption implements IHomomorphicEncryption<CipherText> {
 
     /**
-     * Encrypts the given message additively.
-     *
-     * @param publicKey The public key to use for encryption.
-     * @param message   The message to encrypt.
-     * @return The cipher text which can be additively operated on.
+     * {@inheritDoc}
      */
     @Override
     public CipherText encrypt(PublicKey publicKey, ModInteger message) {
@@ -42,34 +39,41 @@ public class Encryption implements IEncryption<CipherText> {
         // We split the second part, i.e. c21 into two
         // for easier calculation of the multiplication.
         // So this becomes:
-        // E(m) = (c1, c211 * c212) = (g^r, g^m * h^r)
+        // E(m) = (c1, c211 * c212) = (g^r, h^r * g^m)
 
-        // transform message to g^m
         ModInteger c1 = publicKey.getG().pow(random);
-        ModInteger c21 = publicKey.getG().pow(message);
-        ModInteger c22 = publicKey.getY().pow(random);
+        ModInteger c21 = publicKey.getH().pow(random);
+        ModInteger c22 = publicKey.getG().pow(message);
 
-        return new CipherText(c1, c21, c22);
+        IMembershipProofFactory<MembershipProof> factory = new AdditiveElGamalMembershipProofFactory();
+        MembershipProof proof = factory.createProof(
+            publicKey.getP(),
+            publicKey.getQ(),
+            publicKey.getG(),
+            publicKey.getH(),
+            message,
+            c1,
+            c21.multiply(c22),
+            random
+        );
+
+        return new CipherText(c1, c21, c22, random, proof);
     }
 
     /**
-     * Decrypts the given cipher text using the specified private key.
-     *
-     * @param privateKey The private key used for decryption.
-     * @param cipherText The cipher text to decrypt.
-     * @return The cleartext value
+     * {@inheritDoc}
      */
     @Override
     public ModInteger decrypt(PrivateKey privateKey, CipherText cipherText) {
         // g^m = (h^r * g^m) / (g^r)^x
-        ModInteger gToM = cipherText.getC2().divide(cipherText.getC1().pow(privateKey.getX()));
+        ModInteger gToM = cipherText.getH().divide(cipherText.getG().pow(privateKey.getX()));
 
         int i = 0;
         while (true) {
             // since we only know g^m we have to check for each possible value of m,
             // until we find a cleartext value of m which matches g^m.
             // As of now, this is not an efficient algorithm to find the clear text sum.
-            ModInteger target = new ModInteger(privateKey.getG(), new ModInteger(gToM.getModulus(), BigInteger.ZERO)).pow(i);
+            ModInteger target = new ModInteger(privateKey.getG(), gToM.getModulus()).pow(i);
 
             if (target.equals(gToM)) {
                 return new ModInteger(i);

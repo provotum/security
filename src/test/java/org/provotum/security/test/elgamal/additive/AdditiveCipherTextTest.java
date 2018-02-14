@@ -6,7 +6,7 @@ import org.bouncycastle.crypto.params.ElGamalParameters;
 import org.bouncycastle.jce.interfaces.ElGamalPrivateKey;
 import org.bouncycastle.jce.interfaces.ElGamalPublicKey;
 import org.bouncycastle.jce.spec.ElGamalParameterSpec;
-import org.provotum.security.api.IEncryption;
+import org.provotum.security.api.IHomomorphicEncryption;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
@@ -18,6 +18,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests the correct working of additive ElGamal homomorphic encryption.
@@ -27,14 +29,12 @@ public class AdditiveCipherTextTest extends TestCase {
     private PublicKey publicKey;
     private PrivateKey privateKey;
 
-    private IEncryption<CipherText> encryption;
+    private IHomomorphicEncryption<CipherText> encryption;
 
     public void setUp() throws InvalidAlgorithmParameterException {
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
         generator.init(160, 20, new SecureRandom());
         ElGamalParameters parameters = generator.generateParameters();
-        parameters.getP(); // public prime
-        parameters.getG(); // public generator
 
         ElGamalParameterSpec elGamalParameterSpec = new ElGamalParameterSpec(parameters.getP(), parameters.getG());
 
@@ -57,13 +57,13 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ONE);
 
         // should contain value for two
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(new BigInteger("2"), result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(new BigInteger("2").equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
 
     public void testAddition2() {
@@ -71,13 +71,13 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
 
         // should contain value for one
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(BigInteger.ONE, result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(BigInteger.ONE.equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
 
     public void testAddition3() {
@@ -85,12 +85,34 @@ public class AdditiveCipherTextTest extends TestCase {
         CipherText cipherText2 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
 
         // should contain value for one
-        CipherText cipherText = cipherText1.multiply(cipherText2);
+        CipherText cipherText = cipherText1.operate(cipherText2);
 
         ModInteger result = this.encryption.decrypt(this.privateKey, cipherText);
 
         // sum should be equals to the addition of both cipher texts
-        assertEquals(BigInteger.ZERO, result.getValue());
-        assertEquals(BigInteger.ZERO, result.getModulus());
+        assertTrue(BigInteger.ZERO.equals(result.getValue().asBigInteger()));
+        assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
+    }
+
+    public void testVerifyEncryption() {
+        List<ModInteger> domain = new ArrayList<>();
+        domain.add(ModInteger.ZERO);
+        domain.add(ModInteger.ONE);
+
+        CipherText cipherText1 = this.encryption.encrypt(this.publicKey, ModInteger.ZERO);
+        boolean isVerified = cipherText1.verify(this.publicKey, domain);
+
+        assertTrue(isVerified);
+    }
+
+    public void testVerifyInvalidEncryption() {
+        List<ModInteger> domain = new ArrayList<>();
+        domain.add(ModInteger.ZERO);
+        domain.add(ModInteger.ONE);
+
+        CipherText cipherText1 = this.encryption.encrypt(this.publicKey, new ModInteger(3));
+        boolean isVerified = cipherText1.verify(this.publicKey, domain);
+
+        assertFalse(isVerified);
     }
 }

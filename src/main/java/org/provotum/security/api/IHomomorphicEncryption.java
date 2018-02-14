@@ -4,7 +4,12 @@ import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
 
-public interface IEncryption<C extends ICipherText<C>> {
+/**
+ * Encrypt and decrypt a plaintext value in a homomorphic fashion.
+ *
+ * @param <C> The type of the ciphertext to encrypt a plaintext value to.
+ */
+public interface IHomomorphicEncryption<C extends IHomomorphicCipherText<C>> {
 
     /**
      * Encrypt the given message with the given public key.

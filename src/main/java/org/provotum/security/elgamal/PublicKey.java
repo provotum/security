@@ -5,11 +5,11 @@ import org.provotum.security.arithmetic.ModInteger;
 
 import java.math.BigInteger;
 
+/**
+ * An ElGamal public key.
+ */
 public class PublicKey {
 
-    /**
-     * The message base. Used to represent messages wrt. a certain base.
-     */
     private ModInteger q;
     private ElGamalPublicKey publicKey;
 
@@ -25,11 +25,11 @@ public class PublicKey {
     }
 
     /**
-     * The public key value, i.e. <code>y := h := (g^x) mod p</code>.
+     * The public key value, i.e. <code>h := y := (g^x) mod p</code>.
      *
      * @return The public key value <b>y</b> aka <b>h</b>.
      */
-    public ModInteger getY() {
+    public ModInteger getH() {
         return new ModInteger(this.publicKey.getY(), this.publicKey.getParameters().getP());
     }
 
@@ -63,5 +63,4 @@ public class PublicKey {
     public ModInteger getQ() {
         return q;
     }
-
 }
