@@ -41,7 +41,7 @@ public class CipherText implements ICipherText<CipherText> {
     public CipherText multiply(CipherText cipherText) {
         // TODO: check public keys for equality
 
-        // E(m) = (c1, c21 * c22) = (g^r, g^m * h^r)
+        // E(m) = (G, H) = (c1, c21 * c22) = (g^r, g^m * h^r)
         //
         // g^r1 * g^r2
         this.c1 = this.c1.multiply(cipherText.c1);
@@ -55,11 +55,11 @@ public class CipherText implements ICipherText<CipherText> {
         return this;
     }
 
-    public ModInteger getC1() {
+    public ModInteger getG() {
         return this.c1;
     }
 
-    public ModInteger getC2() {
+    public ModInteger getH() {
         return this.c21.multiply(this.c22);
     }
 

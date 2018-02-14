@@ -44,10 +44,11 @@ public class Encryption implements IEncryption<CipherText> {
         // So this becomes:
         // E(m) = (c1, c211 * c212) = (g^r, g^m * h^r)
 
+        // TODO: this might be the other way round...
         // transform message to g^m
         ModInteger c1 = publicKey.getG().pow(random);
-        ModInteger c21 = publicKey.getG().pow(message);
-        ModInteger c22 = publicKey.getY().pow(random);
+        ModInteger c21 = publicKey.getH().pow(random);
+        ModInteger c22 = publicKey.getF().pow(message);
 
         return new CipherText(c1, c21, c22, random);
     }
@@ -62,14 +63,14 @@ public class Encryption implements IEncryption<CipherText> {
     @Override
     public ModInteger decrypt(PrivateKey privateKey, CipherText cipherText) {
         // g^m = (h^r * g^m) / (g^r)^x
-        ModInteger gToM = cipherText.getC2().divide(cipherText.getC1().pow(privateKey.getX()));
+        ModInteger gToM = cipherText.getH().divide(cipherText.getG().pow(privateKey.getX()));
 
         int i = 0;
         while (true) {
             // since we only know g^m we have to check for each possible value of m,
             // until we find a cleartext value of m which matches g^m.
             // As of now, this is not an efficient algorithm to find the clear text sum.
-            ModInteger target = new ModInteger(privateKey.getG(), new ModInteger(gToM.getModulus(), BigInteger.ZERO)).pow(i);
+            ModInteger target = new ModInteger(privateKey.getG(), gToM.getModulus()).pow(i);
 
             if (target.equals(gToM)) {
                 return new ModInteger(i);
