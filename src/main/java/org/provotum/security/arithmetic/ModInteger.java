@@ -457,7 +457,7 @@ public class ModInteger implements Comparable<ModInteger> {
     public boolean equals(Object x) {
 
         Boolean isThis = (x == this);
-        Boolean isModIntegerAndEqual = (x instanceof ModInteger) && value.equals(((ModInteger) x).value);
+        Boolean isModIntegerAndEqual = (x instanceof ModInteger) && finalized().equals(((ModInteger) x).finalized());
 
         return isThis || isModIntegerAndEqual;
     }
@@ -493,7 +493,7 @@ public class ModInteger implements Comparable<ModInteger> {
      * @see BigInteger#toString()
      */
     public String toString() {
-        return value.toString();
+        return this.finalized().toString();
     }
 
     /**

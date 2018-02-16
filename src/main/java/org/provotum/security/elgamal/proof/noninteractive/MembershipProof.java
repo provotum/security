@@ -6,20 +6,126 @@ import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.additive.CipherText;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A proof that an ElGamal encrypted value is within a particular range.
  */
-public class MembershipProof implements IMembershipProof {
+public class MembershipProof implements IMembershipProof<CipherText> {
 
-    private List<ModInteger> sList;
-    private List<ModInteger> cList;
-    private List<ModInteger> yList;
-    private List<ModInteger> zList;
+    private final List<ModInteger> sList;
+    private final List<ModInteger> cList;
+    private final List<ModInteger> yList;
+    private final List<ModInteger> zList;
 
-    private ModInteger p;
-    private ModInteger q;
+    private final ModInteger p;
+    private final ModInteger q;
+
+
+    public static MembershipProof commit(PublicKey publicKey, ModInteger plainTextMessage, CipherText cipherText, List<ModInteger> domain) {
+        List<ModInteger> sList = new ArrayList<>();
+        List<ModInteger> cList = new ArrayList<>();
+        List<ModInteger> yList = new ArrayList<>();
+        List<ModInteger> zList = new ArrayList<>();
+
+
+        // create the generator g and the public value of the private key
+        // relative to the prime modulus p.
+        ModInteger g = new ModInteger(publicKey.getG(), publicKey.getP());
+        ModInteger h = new ModInteger(publicKey.getH(), publicKey.getP());
+
+        // generate a random value we use while committing
+        // to the real vote
+        ModInteger t = ModInteger.random(publicKey.getQ());
+
+        // Create a string representation of
+        StringBuilder sb = new StringBuilder(4096);
+        sb.append(g);
+        sb.append(h);
+        sb.append(cipherText.getG());
+        sb.append(cipherText.getH());
+
+        // the index of the domain of the message within
+        // the list of all allowed domain values
+        int indexInDomain = 0;
+
+
+        /* Iterate over the domain */
+        for (int i = 0; i < domain.size(); i++) {
+
+            ModInteger y;
+            ModInteger z;
+            ModInteger d = domain.get(i);
+
+            /* See if the value is this particular member of the domain */
+            if (d.equals(plainTextMessage)) {
+
+                /* If it is, fill c_i and s_i with dummy values for now */
+                sList.add(ModInteger.ZERO);
+                cList.add(ModInteger.ZERO);
+
+                /* Compute random group member */
+                y = g.pow(t);
+
+                /* commit a random cipher, as part of the commitment process */
+                z = h.pow(t);
+
+                /* Record the index of the valid value */
+                indexInDomain = i;
+            } else {
+
+                /* If we don't have a valid value, generate random numbers for c_i and s_i */
+                sList.add(ModInteger.random(publicKey.getQ()));
+                cList.add(ModInteger.random(publicKey.getQ()));
+                ModInteger s = sList.get(i);
+                ModInteger c = cList.get(i);
+
+                /* This will be needed for computing z_i */
+                ModInteger negC = c.negate();
+
+                /* This is essentially the message corresponding to domain member d mapped into G */
+                ModInteger fpow = g.pow(d);
+
+                /* Compute a group member g^s * (g^r)^(-c_i) = g^(s - r*c_i) */
+                y = g.pow(s).multiply(cipherText.getG().pow(negC));
+
+                /* Compute a cipher, of the form g^xs * [(g^rx * f^m)/f^d]^(-c_i) = g^[x(s - rc_i)] * f^[c_i*(d - m)] */
+                z = h.pow(s).multiply(cipherText.getH().divide(fpow).pow(negC));
+            }
+
+            /* Add our random ciphers and members to their respective lists */
+            yList.add(y);
+            zList.add(z);
+
+            /* Add them to the commitment string */
+            sb.append(y);
+            sb.append(z);
+        }
+
+        /* Hash the commitment string */
+        String s = sb.toString();
+        String cHash = Util.sha1(s);
+
+        /* From the hash, construct a numerical value */
+        ModInteger c1 = new ModInteger(cHash, publicKey.getQ(), 16).mod(publicKey.getQ());
+        ModInteger realC = new ModInteger(c1, publicKey.getQ());
+
+        /* Now subtract all of the generated fake commits off the hash value (note, the valid value will still be 0 here) */
+        for (ModInteger fakeC : cList) {
+            realC = realC.subtract(fakeC);
+        }
+
+        /* Note that realC (call it p) is now c1 - (sum(cList)) */
+
+        /* Compute pr + t using our real commitment value and add it in the right place */
+        sList.set(indexInDomain, realC.multiply(cipherText.getR()).add(t));
+
+        /* Add our real commitment value into the commit list in the right place */
+        cList.set(indexInDomain, realC);
+
+        return new MembershipProof(publicKey.getP(), publicKey.getQ(), yList, zList, sList, cList);
+    }
 
 
     /**
@@ -39,6 +145,7 @@ public class MembershipProof implements IMembershipProof {
         this.sList = sList;
         this.cList = cList;
     }
+
 
     /**
      * {@inheritDoc}
@@ -122,48 +229,27 @@ public class MembershipProof implements IMembershipProof {
         }
     }
 
-
-    /**
-     * Create a string representation of this proof.
-     *
-     * @return The string representation of this proof.
-     */
-    public String toString() {
-        StringBuilder sb = new StringBuilder(8192);
-
-        sb.append("p");
-        sb.append(p);
-
-        for (ModInteger y : yList) {
-            sb.append("y");
-            sb.append(y.finalized());
-        }
-
-        for (ModInteger z : zList) {
-            sb.append("z");
-            sb.append(z.finalized());
-        }
-
-        for (ModInteger s : sList) {
-            sb.append("s");
-            sb.append(s.finalized());
-        }
-
-        for (ModInteger c1 : cList) {
-            sb.append("c");
-            sb.append(c1.finalized());
-        }
-
-        return sb.toString();
+    public List<ModInteger> getsList() {
+        return sList;
     }
 
-    @Override
-    public int hashCode() {
-        return this.toString().hashCode();
+    public List<ModInteger> getcList() {
+        return cList;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof MembershipProof && this.toString().equals(obj.toString());
+    public List<ModInteger> getyList() {
+        return yList;
+    }
+
+    public List<ModInteger> getzList() {
+        return zList;
+    }
+
+    public ModInteger getP() {
+        return p;
+    }
+
+    public ModInteger getQ() {
+        return q;
     }
 }
