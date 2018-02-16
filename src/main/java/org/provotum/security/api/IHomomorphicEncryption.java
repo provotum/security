@@ -4,6 +4,8 @@ import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
 
+import java.util.List;
+
 /**
  * Encrypt and decrypt a plaintext value in a homomorphic fashion.
  *

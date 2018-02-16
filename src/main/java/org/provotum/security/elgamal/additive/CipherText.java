@@ -2,10 +2,6 @@ package org.provotum.security.elgamal.additive;
 
 import org.provotum.security.api.IHomomorphicCipherText;
 import org.provotum.security.arithmetic.ModInteger;
-import org.provotum.security.elgamal.PublicKey;
-import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
-
-import java.util.List;
 
 /**
  * An additive homomorphic ElGamal ciphertext.
@@ -30,11 +26,9 @@ import java.util.List;
  */
 public class CipherText implements IHomomorphicCipherText<CipherText> {
 
-    private ModInteger c1;
-    private ModInteger c21;
-    private ModInteger c22;
     private ModInteger r;
-    private MembershipProof membershipProof;
+    private ModInteger bigH;
+    private ModInteger bigG;
 
     /**
      * Creates a new ciphertext of the form:
@@ -42,18 +36,14 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      *     E = (G,H) = (g^r, h^r * g^m) = (c1, c21 * c22)
      * </pre>
      *
-     * @param c1              g^r, with g being the generator of the cyclic group.
-     * @param c21             h^r, with h being the public value h = g^x of the private key x.
-     * @param c22             g^m, with g being the generator and m the message to encrypt.
-     * @param r               The random value r used in the components above, in the range [0, q - 1]
-     * @param membershipProof A membership proof ensuring that the plaintext value of this cipher is within a certain range.
+     * @param bigG g^r, with g being the generator of the cyclic group.
+     * @param bigH h^r, with h being the public value h = g^x of the private key x <tt>times</tt> g^m, with g being the generator and m the message to encrypt.
+     * @param r    The random value r used in the components above, in the range [0, q - 1]
      */
-    public CipherText(ModInteger c1, ModInteger c21, ModInteger c22, ModInteger r, MembershipProof membershipProof) {
-        this.c1 = c1;
-        this.c21 = c21;
-        this.c22 = c22;
+    public CipherText(ModInteger bigG, ModInteger bigH, ModInteger r) {
+        this.bigG = bigG;
+        this.bigH = bigH;
         this.r = r;
-        this.membershipProof = membershipProof;
     }
 
     /**
@@ -84,26 +74,13 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
     public CipherText operate(CipherText operand) {
         // E(m) = (G, H) = (c1, c21 * c22) = (g^r, h^r * g^m)
 
-        // g^r1 * g^r2
-        this.c1 = this.c1.multiply(operand.c1);
-        // h^r1 * h^r2
-        this.c21 = this.c21.multiply(operand.c21);
-        // g^m1 * g^m2
-        this.c22 = this.c22.multiply(operand.c22);
-
-        this.r = this.r.add(operand.getR());
+        this.bigH = this.bigH.multiply(operand.bigH);
+        this.bigG = this.bigG.multiply(operand.bigG);
+        this.r = this.r.add(operand.r);
 
         // TODO: recompute the proof
 
         return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean verify(PublicKey publicKey, List<ModInteger> domain) {
-        return this.membershipProof.verify(publicKey, this, domain);
     }
 
     /**
@@ -115,7 +92,7 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      * @return The first component of the encrypted message.
      */
     public ModInteger getG() {
-        return this.c1;
+        return this.bigG;
     }
 
     /**
@@ -127,7 +104,7 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      * @return The first component of the encrypted message.
      */
     public ModInteger getH() {
-        return this.c21.multiply(this.c22);
+        return this.bigH;
     }
 
     /**

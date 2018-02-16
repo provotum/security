@@ -1,12 +1,9 @@
 package org.provotum.security.elgamal.additive;
 
 import org.provotum.security.api.IHomomorphicEncryption;
-import org.provotum.security.api.IMembershipProofFactory;
 import org.provotum.security.arithmetic.ModInteger;
 import org.provotum.security.elgamal.PrivateKey;
 import org.provotum.security.elgamal.PublicKey;
-import org.provotum.security.elgamal.proof.AdditiveElGamalMembershipProofFactory;
-import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
 /**
  * This implementation provides additive homomorphic encryption using ElGamal.
@@ -45,19 +42,7 @@ public class Encryption implements IHomomorphicEncryption<CipherText> {
         ModInteger c21 = publicKey.getH().pow(random);
         ModInteger c22 = publicKey.getG().pow(message);
 
-        IMembershipProofFactory<MembershipProof> factory = new AdditiveElGamalMembershipProofFactory();
-        MembershipProof proof = factory.createProof(
-            publicKey.getP(),
-            publicKey.getQ(),
-            publicKey.getG(),
-            publicKey.getH(),
-            message,
-            c1,
-            c21.multiply(c22),
-            random
-        );
-
-        return new CipherText(c1, c21, c22, random, proof);
+        return new CipherText(c1, c21.multiply(c22), random);
     }
 
     /**
