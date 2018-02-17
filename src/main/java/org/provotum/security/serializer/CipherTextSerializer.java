@@ -59,4 +59,37 @@ public class CipherTextSerializer {
         return new CipherText(bigG, bigH, null);
     }
 
+    public static CipherText fromString(String ciphertext, ModInteger random) {
+        StringTokenizer tokenizer = new StringTokenizer(ciphertext, "GMH");
+
+        if (! tokenizer.hasMoreTokens()) {
+            throw new IllegalArgumentException("Provided ciphertext is invalid. No tokens found.");
+        }
+
+        BigInteger bigGValue = new BigInteger(tokenizer.nextToken(), CipherTextSerializer.RADIX);
+
+        if (! tokenizer.hasMoreTokens()) {
+            throw new IllegalArgumentException("Provided ciphertext is invalid. Missing modulus for G.");
+        }
+        BigInteger bigGModulus = new BigInteger(tokenizer.nextToken(), CipherTextSerializer.RADIX);
+
+        if (! tokenizer.hasMoreTokens()) {
+            throw new IllegalArgumentException("Provided ciphertext is invalid. Missing value for H.");
+        }
+
+        BigInteger bigHValue = new BigInteger(tokenizer.nextToken(), CipherTextSerializer.RADIX);
+
+        if (! tokenizer.hasMoreTokens()) {
+            throw new IllegalArgumentException("Provided ciphertext is invalid. Missing modulus for H.");
+        }
+        BigInteger bigHModulus = new BigInteger(tokenizer.nextToken(), CipherTextSerializer.RADIX);
+
+
+        ModInteger bigG = new ModInteger(bigGValue, bigGModulus);
+        ModInteger bigH = new ModInteger(bigHValue, bigHModulus);
+
+
+        return new CipherText(bigG, bigH, random);
+    }
+
 }
