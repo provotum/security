@@ -11,6 +11,8 @@ import org.provotum.security.elgamal.additive.CipherText;
 import org.provotum.security.elgamal.additive.Encryption;
 import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
+import javax.crypto.spec.DHParameterSpec;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
@@ -137,4 +139,39 @@ public class MembershipProofTest extends TestCase {
 
         assertFalse(isProven);
     }
+
+    public void testProofOfSum() {
+        Encryption enc = new Encryption();
+
+        List<ModInteger> msgDomain = new ArrayList<>();
+        msgDomain.add(ModInteger.ZERO);
+        msgDomain.add(ModInteger.ONE);
+
+        ModInteger message1 = new ModInteger(1, this.publicKey.getP());
+        CipherText cipherText1 = enc.encrypt(this.publicKey, message1);
+        MembershipProof proof1 = MembershipProof.commit(this.publicKey, ModInteger.ONE, cipherText1, msgDomain);
+
+        ModInteger message2 = new ModInteger(1, this.publicKey.getP());
+        CipherText cipherText2 = enc.encrypt(this.publicKey, message2);
+        MembershipProof proof2 = MembershipProof.commit(this.publicKey, ModInteger.ONE, cipherText2, msgDomain);
+
+        CipherText sum = cipherText1.operate(cipherText2);
+
+        List<ModInteger> newDomain = new ArrayList<>();
+        newDomain.add(ModInteger.ZERO);
+        newDomain.add(ModInteger.ONE);
+        newDomain.add(ModInteger.TWO);
+
+        MembershipProof proof = MembershipProof.commitToSum(
+            this.publicKey,
+            cipherText1,
+            proof1,
+            cipherText2,
+            proof2,
+            newDomain
+        );
+
+        assertTrue(proof.verify(this.publicKey, sum, newDomain));
+    }
+
 }

@@ -7,6 +7,7 @@ import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.additive.CipherText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,8 +15,8 @@ import java.util.List;
  */
 public class MembershipProof implements IMembershipProof<CipherText> {
 
-    private final List<ModInteger> sList;
-    private final List<ModInteger> cList;
+    private List<ModInteger> sList;
+    private List<ModInteger> cList;
     private final List<ModInteger> yList;
     private final List<ModInteger> zList;
 
@@ -123,6 +124,151 @@ public class MembershipProof implements IMembershipProof<CipherText> {
 
         /* Add our real commitment value into the commit list in the right place */
         cList.set(indexInDomain, realC);
+
+        return new MembershipProof(publicKey.getP(), publicKey.getQ(), yList, zList, sList, cList);
+    }
+
+    public static MembershipProof commitToSum(PublicKey publicKey, CipherText cipherText1, MembershipProof proof1, CipherText cipherText2, MembershipProof proof2, List<ModInteger> domain) {
+        List<ModInteger> sList = new ArrayList<>();
+        List<ModInteger> cList = new ArrayList<>();
+        List<ModInteger> yList = new ArrayList<>();
+        List<ModInteger> zList = new ArrayList<>();
+
+
+        // create the generator g and the public value of the private key
+        // relative to the prime modulus p.
+        ModInteger g = new ModInteger(publicKey.getG(), publicKey.getP());
+        ModInteger h = new ModInteger(publicKey.getH(), publicKey.getP());
+
+        /* bigG (g^r), bigH (g^(rx) * f^m), and r */
+        ModInteger bigG = cipherText1.getG().multiply(cipherText2.getG());
+        ModInteger bigH = cipherText1.getH().multiply(cipherText2.getH());
+
+        int indexInDomain = 0;
+
+        /* Used in commitment process */
+        ModInteger t = ModInteger.random(publicKey.getQ());
+
+        StringBuilder sb = new StringBuilder(4096);
+
+        /* Append all the numbers to the string*/
+        sb.append(g);
+        sb.append(h);
+        sb.append(bigG);
+        sb.append(bigH);
+
+        // shift the domains so that stuff works...
+        List<ModInteger> newCList1 = new ArrayList<>();
+        List<ModInteger> newSList1 = new ArrayList<>();
+        ModInteger min1 = ModInteger.ZERO;
+        ModInteger max1 = ModInteger.ONE;
+
+        List<ModInteger> newCList2 = new ArrayList<>();
+        List<ModInteger> newSList2 = new ArrayList<>();
+        ModInteger min2 = ModInteger.ZERO;
+        ModInteger max2 = ModInteger.ONE;
+
+        int j = 0;
+        int k = 0;
+
+        for (int i = domain.get(0).intValue(); i <= domain.get(domain.size() - 1).intValue(); i++) {
+
+            if (i < min1.intValue() || i > max1.intValue()) {
+                newCList1.add(ModInteger.random(publicKey.getQ()));
+                newSList1.add(ModInteger.random(publicKey.getQ()));
+            } else {
+                newCList1.add(proof1.cList.get(j));
+                newSList1.add(proof1.sList.get(j));
+                j++;
+            }
+
+            if (i < min2.intValue() || i > max2.intValue()) {
+                newCList2.add(ModInteger.random(publicKey.getQ()));
+                newSList2.add(ModInteger.random(publicKey.getQ()));
+            } else {
+                newCList2.add(proof2.cList.get(k));
+                newSList2.add(proof2.sList.get(k));
+                k++;
+            }
+        }
+
+        proof1.cList = newCList1;
+        proof1.sList = newSList1;
+
+        proof2.cList = newCList2;
+        proof2.sList = newSList2;
+
+        /* Iterate over the domain */
+        for (int i = 0; i < domain.size(); i++) {
+
+            ModInteger y;
+            ModInteger z;
+            ModInteger d = domain.get(i);
+
+            ModInteger s1 = proof1.sList.get(i);
+            ModInteger s2 = proof2.sList.get(i);
+
+            ModInteger c1 = proof1.cList.get(i);
+            ModInteger c2 = proof1.cList.get(i);
+
+            /* s' = s1 + s2 */
+            sList.add(s1.add(s2));
+
+            /* c' = c1 + c2 */
+            cList.add(c1.add(c2));
+
+            /* This will be needed for computing z_i */
+            ModInteger negC1 = c1.negate();
+            ModInteger negC2 = c2.negate();
+
+            /* This is essentially the message corresponding to domain member d mapped into G */
+            ModInteger fpow = g.pow(d);
+
+            /* Compute a group member y = g^s * (g^r)^(-c) = g^(s - r*c) */
+            ModInteger y1 = g.pow(s1).multiply(cipherText1.getG().pow(negC1));
+             ModInteger y2 = g.pow(s2).multiply(cipherText2.getG().pow(negC2));
+
+            /* Now this is y1*y2 / [g^(r2*c1+r1*c2)] = g^(s'-r'c') = y(s',r',c') = y' */
+            y = y1.multiply(y2).divide(g.pow(cipherText2.getR().multiply(c1).add(cipherText1.getR().multiply(c2))));
+
+            /* Compute a cipher, of the form z = g^xs * [(g^rx * f^m)/f^d]^(-c_i) = g^[x(s - rc_i)] * f^[c_i*(d - m)] */
+            ModInteger z1 = h.pow(s1).multiply(cipherText1.getH().divide(fpow).pow(negC1));
+            ModInteger z2 = h.pow(s2).multiply(cipherText2.getH().divide(fpow).pow(negC2));
+
+            /* Now this is z1*z2 / [f^(m2*c1+m1*c2)] = z1*z2 / [ bigH2^c1 * bigH1^c2 ] = z(y', s',c') = z' */
+            z = z1.multiply(z2).divide(cipherText2.getH().pow(c1).multiply(cipherText1.getH().pow(c2)));
+
+            /* If this is true, then this means that d=m */
+            if (bigH.divide(fpow).equals(h.pow(cipherText1.getR().add(cipherText2.getR())))) {
+
+                y = g.pow(t);
+                z = h.pow(t);
+                cList.set(i, ModInteger.ZERO);
+                sList.set(i, ModInteger.ZERO);
+                indexInDomain = i;
+            }
+
+            /* Add our random ciphers and members to their respective lists */
+            yList.add(y);
+            zList.add(z);
+
+            sb.append(y);
+            sb.append(z);
+        }
+
+        ModInteger c = new ModInteger(Util.sha1(sb.toString()), publicKey.getQ(), 16).mod(publicKey.getQ());
+        ModInteger realC = new ModInteger(c, publicKey.getQ());
+
+        for (ModInteger fakeC : cList) realC = realC.subtract(fakeC);
+
+        /* Note that realC is now c - (sum(cList)) = hash(sb) - sum(cList). If we tack this onto existing cList, then
+         * sum(cList) = hash(sb). When this gets verified, then cChoices = sum(cList) = hash(sb) = c
+         */
+
+        /* This will ensure that y = g^(s' - r'c') = g^(realC*r'+t - r'*realC) = g^t which is what was committed */
+        /* Since z = y^x * f^[c(d-m)] = (g^t)^x f^[realC(d-m)] = h^t when d=m which is what was committed */
+        cList.set(indexInDomain, realC);
+        sList.set(indexInDomain, realC.multiply(cipherText1.getR().add(cipherText2.getR())).add(t));
 
         return new MembershipProof(publicKey.getP(), publicKey.getQ(), yList, zList, sList, cList);
     }

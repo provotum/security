@@ -298,6 +298,7 @@ public class ModInteger implements Comparable<ModInteger> {
     public ModInteger negate() {
 
         ModInteger c = new ModInteger();
+        c.modulus = this.modulus;
 
         if (! this.modulus.equals(BigInteger.ZERO)) {
             // we ensure that the value is not bigger than the modulus here
@@ -511,5 +512,9 @@ public class ModInteger implements Comparable<ModInteger> {
 
     public String asStringWithModulus() {
         return value.toString() + " modulus " + modulus.toString();
+    }
+
+    public int intValue() {
+        return this.value.intValue();
     }
 }

@@ -74,13 +74,11 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
     public CipherText operate(CipherText operand) {
         // E(m) = (G, H) = (c1, c21 * c22) = (g^r, h^r * g^m)
 
-        this.bigH = this.bigH.multiply(operand.bigH);
-        this.bigG = this.bigG.multiply(operand.bigG);
-        this.r = this.r.add(operand.r);
-
-        // TODO: recompute the proof
-
-        return this;
+        return new CipherText(
+            this.bigG.multiply(operand.bigG),
+            this.bigH.multiply(operand.bigH),
+            this.r.add(operand.r)
+        );
     }
 
     /**
