@@ -53,4 +53,29 @@ public class ModIntegerTest extends TestCase {
         assertEquals(ModInteger.ZERO, combined);
     }
 
+    public void testCompareTo() {
+        ModInteger zero = new ModInteger("0");
+        ModInteger one = new ModInteger("1");
+
+        assertEquals(-1, zero.compareTo(one));
+    }
+
+    public void testEqualInSameModulus() {
+        ModInteger one1 = new ModInteger("1", "2");
+        ModInteger one2 = new ModInteger("3", "2");
+
+        assertTrue(one1.equals(one2));
+    }
+
+    public void testFailedEqual() {
+        ModInteger zero = new ModInteger("0", "2");
+        ModInteger one = new ModInteger("1", "3");
+
+        assertFalse(zero.equals(one));
+    }
+
+    public void testEqualWithOtherObject() {
+        assertFalse(ModInteger.ONE.equals(BigInteger.ONE));
+    }
+
 }

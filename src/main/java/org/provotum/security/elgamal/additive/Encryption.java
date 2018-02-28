@@ -61,7 +61,7 @@ public class Encryption implements IHomomorphicEncryption<CipherText> {
             ModInteger target = new ModInteger(privateKey.getG(), gToM.getModulus()).pow(i);
 
             if (target.equals(gToM)) {
-                return new ModInteger(i);
+                return new ModInteger(Integer.toString(i));
             }
 
             i++;

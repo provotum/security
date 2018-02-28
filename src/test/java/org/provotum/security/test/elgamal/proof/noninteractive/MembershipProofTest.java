@@ -11,8 +11,6 @@ import org.provotum.security.elgamal.additive.CipherText;
 import org.provotum.security.elgamal.additive.Encryption;
 import org.provotum.security.elgamal.proof.noninteractive.MembershipProof;
 
-import javax.crypto.spec.DHParameterSpec;
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
@@ -48,7 +46,7 @@ public class MembershipProofTest extends TestCase {
 
     public void testOneOrProof() {
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(1, this.publicKey.getP());
+        ModInteger message = new ModInteger(ModInteger.ONE, this.publicKey.getP());
 
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
@@ -67,7 +65,7 @@ public class MembershipProofTest extends TestCase {
 
     public void testFailedOneOrProof() {
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(1, this.publicKey.getP());
+        ModInteger message = new ModInteger(ModInteger.ONE, this.publicKey.getP());
 
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
@@ -86,7 +84,7 @@ public class MembershipProofTest extends TestCase {
 
     public void testZeroOrProof() {
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(0, this.publicKey.getP());
+        ModInteger message = new ModInteger(ModInteger.ZERO, this.publicKey.getP());
 
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
@@ -105,7 +103,7 @@ public class MembershipProofTest extends TestCase {
 
     public void testFailedZeroOrProof() {
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(0, this.publicKey.getP());
+        ModInteger message = new ModInteger(ModInteger.ZERO, this.publicKey.getP());
 
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
@@ -123,7 +121,7 @@ public class MembershipProofTest extends TestCase {
 
     public void testOutOfBoundOrProof() {
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(3, this.publicKey.getP());
+        ModInteger message = new ModInteger("3", this.publicKey.getP());
 
         Encryption enc = new Encryption();
         CipherText cipherText = enc.encrypt(publicKey, message);
@@ -147,11 +145,11 @@ public class MembershipProofTest extends TestCase {
         msgDomain.add(ModInteger.ZERO);
         msgDomain.add(ModInteger.ONE);
 
-        ModInteger message1 = new ModInteger(1, this.publicKey.getP());
+        ModInteger message1 = new ModInteger("1", this.publicKey.getP());
         CipherText cipherText1 = enc.encrypt(this.publicKey, message1);
         MembershipProof proof1 = MembershipProof.commit(this.publicKey, ModInteger.ONE, cipherText1, msgDomain);
 
-        ModInteger message2 = new ModInteger(1, this.publicKey.getP());
+        ModInteger message2 = new ModInteger("1", this.publicKey.getP());
         CipherText cipherText2 = enc.encrypt(this.publicKey, message2);
         MembershipProof proof2 = MembershipProof.commit(this.publicKey, ModInteger.ONE, cipherText2, msgDomain);
 

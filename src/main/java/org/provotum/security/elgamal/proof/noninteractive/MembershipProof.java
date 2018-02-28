@@ -7,7 +7,6 @@ import org.provotum.security.elgamal.PublicKey;
 import org.provotum.security.elgamal.additive.CipherText;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -140,7 +139,7 @@ public class MembershipProof implements IMembershipProof<CipherText> {
         ModInteger g = new ModInteger(publicKey.getG(), publicKey.getP());
         ModInteger h = new ModInteger(publicKey.getH(), publicKey.getP());
 
-        /* bigG (g^r), bigH (g^(rx) * f^m), and r */
+        /* bigG (g^r), bigH (g^(rx) * g^m), and r */
         ModInteger bigG = cipherText1.getG().multiply(cipherText2.getG());
         ModInteger bigH = cipherText1.getH().multiply(cipherText2.getH());
 

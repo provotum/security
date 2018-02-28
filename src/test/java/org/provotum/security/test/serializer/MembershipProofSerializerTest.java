@@ -41,7 +41,7 @@ public class MembershipProofSerializerTest extends TestCase {
         PublicKey publicKey = new PublicKey(pubKey);
 
         // message must be in the base of the prime number p
-        ModInteger message = new ModInteger(1, publicKey.getP());
+        ModInteger message = new ModInteger("1", publicKey.getP());
 
         Encryption enc = new Encryption();
         this.cipherText = enc.encrypt(publicKey, message);
