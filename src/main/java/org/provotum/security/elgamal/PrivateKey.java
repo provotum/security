@@ -10,8 +10,8 @@ import java.math.BigInteger;
  */
 public class PrivateKey {
 
-    private ElGamalPrivateKey privateKey;
-    private ModInteger q;
+    private final ElGamalPrivateKey privateKey;
+    private final ModInteger q;
 
     /**
      * @param privateKey The ElGamal private key to use.

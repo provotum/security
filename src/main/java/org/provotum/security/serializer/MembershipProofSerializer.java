@@ -18,22 +18,22 @@ public class MembershipProofSerializer {
         sb.append("P");
         sb.append(proof.getP().finalized().toString(MembershipProofSerializer.RADIX));
 
-        for (ModInteger y : proof.getyList()) {
+        for (ModInteger y : proof.getyResponses()) {
             sb.append("Y");
             sb.append(y.finalized().toString(MembershipProofSerializer.RADIX));
         }
 
-        for (ModInteger z : proof.getzList()) {
+        for (ModInteger z : proof.getzResponses()) {
             sb.append("Z");
             sb.append(z.finalized().toString(MembershipProofSerializer.RADIX));
         }
 
-        for (ModInteger s : proof.getsList()) {
+        for (ModInteger s : proof.getsResponses()) {
             sb.append("S");
             sb.append(s.finalized().toString(MembershipProofSerializer.RADIX));
         }
 
-        for (ModInteger c1 : proof.getcList()) {
+        for (ModInteger c1 : proof.getcResponses()) {
             sb.append("C");
             sb.append(c1.finalized().toString(MembershipProofSerializer.RADIX));
         }

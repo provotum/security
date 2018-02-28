@@ -10,8 +10,8 @@ import java.math.BigInteger;
  */
 public class PublicKey {
 
-    private ModInteger q;
-    private ElGamalPublicKey publicKey;
+    private final ModInteger q;
+    private final ElGamalPublicKey publicKey;
 
     /**
      * @param publicKey The ElGamal public key to use.

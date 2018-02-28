@@ -26,9 +26,9 @@ import org.provotum.security.arithmetic.ModInteger;
  */
 public class CipherText implements IHomomorphicCipherText<CipherText> {
 
-    private ModInteger r;
-    private ModInteger bigH;
-    private ModInteger bigG;
+    private final ModInteger r;
+    private final ModInteger bigH;
+    private final ModInteger bigG;
 
     /**
      * Creates a new ciphertext of the form:
@@ -73,7 +73,6 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
      */
     public CipherText operate(CipherText operand) {
         // E(m) = (G, H) = (c1, c21 * c22) = (g^r, h^r * g^m)
-
         return new CipherText(
             this.bigG.multiply(operand.bigG),
             this.bigH.multiply(operand.bigH),

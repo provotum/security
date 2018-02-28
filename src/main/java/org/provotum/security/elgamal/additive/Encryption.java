@@ -53,11 +53,12 @@ public class Encryption implements IHomomorphicEncryption<CipherText> {
         // g^m = (h^r * g^m) / (g^r)^x
         ModInteger gToM = cipherText.getH().divide(cipherText.getG().pow(privateKey.getX()));
 
+        // Decrypting is solving the discrete log:
+        // We compare for each possible value of m whether it is equal to g^m.
+        // Note, that this operation is linear in the message space.
+
         int i = 0;
         while (true) {
-            // since we only know g^m we have to check for each possible value of m,
-            // until we find a cleartext value of m which matches g^m.
-            // As of now, this is not an efficient algorithm to find the clear text sum.
             ModInteger target = new ModInteger(privateKey.getG(), gToM.getModulus()).pow(i);
 
             if (target.equals(gToM)) {

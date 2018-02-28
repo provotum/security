@@ -21,9 +21,9 @@ import java.util.List;
 
 public class MembershipProofSerializerTest extends TestCase {
 
-    private CipherText cipherText;
     private MembershipProof membershipProof;
 
+    @Override
     public void setUp() throws InvalidAlgorithmParameterException {
         ElGamalParametersGenerator generator = new ElGamalParametersGenerator();
         generator.init(160, 20, new SecureRandom());
@@ -44,7 +44,7 @@ public class MembershipProofSerializerTest extends TestCase {
         ModInteger message = new ModInteger("1", publicKey.getP());
 
         Encryption enc = new Encryption();
-        this.cipherText = enc.encrypt(publicKey, message);
+        CipherText cipherText = enc.encrypt(publicKey, message);
 
         List<ModInteger> domain = new ArrayList<>();
         domain.add(ModInteger.ZERO);
@@ -62,9 +62,9 @@ public class MembershipProofSerializerTest extends TestCase {
         assertEquals(this.membershipProof.getQ().getValue(), deserializedProof.getQ().getValue());
         assertEquals(this.membershipProof.getQ().getModulus(), deserializedProof.getQ().getModulus());
 
-        assertEquals(this.membershipProof.getcList(), deserializedProof.getcList());
-        assertEquals(this.membershipProof.getsList(), deserializedProof.getsList());
-        assertEquals(this.membershipProof.getyList(), deserializedProof.getyList());
-        assertEquals(this.membershipProof.getzList(), deserializedProof.getzList());
+        assertEquals(this.membershipProof.getcResponses(), deserializedProof.getcResponses());
+        assertEquals(this.membershipProof.getsResponses(), deserializedProof.getsResponses());
+        assertEquals(this.membershipProof.getyResponses(), deserializedProof.getyResponses());
+        assertEquals(this.membershipProof.getzResponses(), deserializedProof.getzResponses());
     }
 }
