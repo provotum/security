@@ -10,18 +10,34 @@ import java.math.BigInteger;
  */
 public class PublicKey {
 
+    private final ModInteger p;
     private final ModInteger q;
-    private final ElGamalPublicKey publicKey;
+    private final ModInteger h;
+    private final ModInteger g;
 
     /**
      * @param publicKey The ElGamal public key to use.
      */
     public PublicKey(ElGamalPublicKey publicKey) {
-        this.publicKey = publicKey;
-
+        this.p = new ModInteger(publicKey.getParameters().getP());
         // q = (p - 1) / 2
-        BigInteger q = this.publicKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
+        BigInteger q = publicKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
         this.q = new ModInteger(q);
+        this.g = new ModInteger(publicKey.getParameters().getG(), publicKey.getParameters().getP());
+        this.h = new ModInteger(publicKey.getY(), publicKey.getParameters().getP());
+    }
+
+    /**
+     * @param p The prime modulus p.
+     * @param q The number q wrt. to p: (p - 1) / 2
+     * @param g The generator g.
+     * @param h The public key value, i.e. <code>h := y := (g^x) mod p</code>.
+     */
+    public PublicKey(BigInteger p, BigInteger q, BigInteger g, BigInteger h) {
+        this.p = new ModInteger(p);
+        this.q = new ModInteger(q);
+        this.g = new ModInteger(g, p);
+        this.h = new ModInteger(h, p);
     }
 
     /**
@@ -30,7 +46,7 @@ public class PublicKey {
      * @return The public key value <b>y</b> aka <b>h</b>.
      */
     public ModInteger getH() {
-        return new ModInteger(this.publicKey.getY(), this.publicKey.getParameters().getP());
+        return this.h;
     }
 
     /**
@@ -39,7 +55,7 @@ public class PublicKey {
      * @return The base generator <b>g</b>.
      */
     public ModInteger getG() {
-        return new ModInteger(this.publicKey.getParameters().getG(), this.publicKey.getParameters().getP());
+        return this.g;
     }
 
     /**
@@ -50,7 +66,7 @@ public class PublicKey {
      * @return The prime modulus <b>p</b>.
      */
     public ModInteger getP() {
-        return new ModInteger(this.publicKey.getParameters().getP());
+        return this.p;
     }
 
     /**
@@ -62,5 +78,19 @@ public class PublicKey {
      */
     public ModInteger getQ() {
         return q;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.h.hashCode() | this.g.hashCode() | this.p.hashCode() | this.q.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) || (o instanceof PublicKey) &&
+            this.h.equals(((PublicKey) o).h) &&
+            this.g.equals(((PublicKey) o).g) &&
+            this.p.equals(((PublicKey) o).p) &&
+            this.q.equals(((PublicKey) o).q);
     }
 }

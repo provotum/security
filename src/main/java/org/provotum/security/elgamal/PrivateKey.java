@@ -10,17 +10,33 @@ import java.math.BigInteger;
  */
 public class PrivateKey {
 
-    private final ElGamalPrivateKey privateKey;
+    private final ModInteger p;
     private final ModInteger q;
+    private final ModInteger g;
+    private final ModInteger x;
 
     /**
      * @param privateKey The ElGamal private key to use.
      */
     public PrivateKey(ElGamalPrivateKey privateKey) {
-        this.privateKey = privateKey;
-
+        this.p = new ModInteger(privateKey.getParameters().getP());
         // q = (p - 1) / 2
-        this.q = new ModInteger(this.privateKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2)));
+        this.q = new ModInteger(privateKey.getParameters().getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2)));
+        this.g = new ModInteger(privateKey.getParameters().getG());
+        this.x = new ModInteger(privateKey.getX());
+    }
+
+    /**
+     * @param p The prime modulus p.
+     * @param q The number q wrt. to p: (p - 1) / 2
+     * @param g The generator g.
+     * @param x The private key x.
+     */
+    public PrivateKey(BigInteger p, BigInteger q, BigInteger g, BigInteger x) {
+        this.p = new ModInteger(p);
+        this.q = new ModInteger(q);
+        this.g = new ModInteger(g);
+        this.x = new ModInteger(x);
     }
 
     /**
@@ -29,7 +45,7 @@ public class PrivateKey {
      * @return The private key.
      */
     public ModInteger getX() {
-        return new ModInteger(this.privateKey.getX());
+        return this.x;
     }
 
     /**
@@ -40,7 +56,7 @@ public class PrivateKey {
      * @return The prime modulus <b>p</b>.
      */
     public ModInteger getP() {
-        return new ModInteger(this.privateKey.getParameters().getP());
+        return this.p;
     }
 
     /**
@@ -60,6 +76,20 @@ public class PrivateKey {
      * @return The base generator <b>g</b>.
      */
     public ModInteger getG() {
-        return new ModInteger(this.privateKey.getParameters().getG());
+        return this.g;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.x.hashCode() | this.g.hashCode() | this.p.hashCode() | this.q.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) || (o instanceof PrivateKey) &&
+            this.x.equals(((PrivateKey) o).x) &&
+            this.g.equals(((PrivateKey) o).g) &&
+            this.p.equals(((PrivateKey) o).p) &&
+            this.q.equals(((PrivateKey) o).q);
     }
 }
