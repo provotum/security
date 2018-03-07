@@ -335,6 +335,11 @@ public class ModInteger implements Comparable<ModInteger> {
     }
 
     @Override
+    public ModInteger clone() {
+        return new ModInteger(new BigInteger(this.value.toString()), new BigInteger(this.modulus.toString()));
+    }
+
+    @Override
     public String toString() {
         return this.finalized().toString();
     }

@@ -105,4 +105,13 @@ public class AdditiveCipherTextTest extends TestCase {
         assertTrue(BigInteger.ZERO.equals(result.getValue().asBigInteger()));
         assertTrue(BigInteger.ZERO.equals(result.getModulus().asBigInteger()));
     }
+
+    public void testClone() {
+        ModInteger one = new ModInteger(BigInteger.ONE, BigInteger.TEN);
+        CipherText orig = this.encryption.encrypt(this.publicKey, one);
+        CipherText clone = orig.clone();
+
+        assertFalse(orig == clone);
+        assertTrue(orig.equals(clone));
+    }
 }

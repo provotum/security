@@ -115,4 +115,23 @@ public class CipherText implements IHomomorphicCipherText<CipherText> {
     public ModInteger getR() {
         return this.r;
     }
+
+    @Override
+    public int hashCode() {
+        return this.bigG.finalized().hashCode() | this.bigH.finalized().hashCode() | this.r.finalized().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) || (o instanceof CipherText) &&
+            this.bigG.equals(((CipherText) o).bigG) &&
+            this.bigH.equals(((CipherText) o).bigH) &&
+            this.r.equals(((CipherText) o).r);
+    }
+
+    @Override
+    public CipherText clone() {
+        return new CipherText(this.bigG.clone(), this.bigH.clone(), this.r.clone());
+    }
+
 }

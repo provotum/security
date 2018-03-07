@@ -156,8 +156,7 @@ public class MembershipProofTest extends TestCase {
         CipherText sum = cipherText1.operate(cipherText2);
 
         List<ModInteger> newDomain = new ArrayList<>();
-        newDomain.add(ModInteger.ZERO);
-        newDomain.add(ModInteger.ONE);
+        // must match exactly the sum
         newDomain.add(ModInteger.TWO);
 
         MembershipProof proof = MembershipProof.commitToSum(

@@ -46,9 +46,9 @@ public class ModIntegerTest extends TestCase {
 
     public void testCombined() {
         ModInteger combined = this
-                .p
-                .subtract(ModInteger.ONE)
-                .divide(ModInteger.TWO);
+            .p
+            .subtract(ModInteger.ONE)
+            .divide(ModInteger.TWO);
 
         assertEquals(ModInteger.ZERO, combined);
     }
@@ -57,7 +57,7 @@ public class ModIntegerTest extends TestCase {
         ModInteger zero = new ModInteger("0");
         ModInteger one = new ModInteger("1");
 
-        assertEquals(-1, zero.compareTo(one));
+        assertEquals(- 1, zero.compareTo(one));
     }
 
     public void testEqualInSameModulus() {
@@ -76,6 +76,14 @@ public class ModIntegerTest extends TestCase {
 
     public void testEqualWithOtherObject() {
         assertFalse(ModInteger.ONE.equals(BigInteger.ONE));
+    }
+
+    public void testClone() {
+        ModInteger orig = new ModInteger(BigInteger.ONE, BigInteger.TEN);
+        ModInteger clone = orig.clone();
+
+        assertFalse(orig == clone);
+        assertTrue(orig.equals(clone));
     }
 
 }
