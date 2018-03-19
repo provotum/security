@@ -1,6 +1,8 @@
 Provotum Security
 ===================
 
+**Credits**: The encryption and proof logic is heavily inspired by the [Adder Voting System](https://github.com/FreeAndFair/evoting-systems/tree/master/EVTs/adder).
+
 # Requirements
 * Java 8
 * Maven
@@ -13,8 +15,6 @@ Provotum Security
 * Run `mvn clean install` to install the application and run the corresponding tests
 
 # Development
-
-**Note**: The encryption and proof logic is heavily inspired by the [Adder Voting System](https://github.com/FreeAndFair/evoting-systems/tree/master/EVTs/adder).
 
 ## Main Interfaces
 * `IHomomorphicEncryption` This interface ensures the signature for all implementations of a particular kind of homomorphic encryption. As a generic parameter, it requires the kind of ciphertext it operates on.
